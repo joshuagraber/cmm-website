@@ -1,12 +1,38 @@
 import { ContactFormPreview } from "@/components/cmm/contact-form-preview";
+import { ContactToast } from "@/components/cmm/contact-toast";
 import { PageHero } from "@/components/cmm/page-hero";
 import { PhotoGrid } from "@/components/cmm/photo-grid";
 import { ProfileCard } from "@/components/cmm/profile-card";
 import { SiteHeader } from "@/components/cmm/site-header";
 
-export default function Home() {
+type ContactStatus = "sent" | "error";
+
+type HomeProps = {
+  searchParams: Promise<{
+    contact?: string | string[];
+    firstName?: string | string[];
+  }>;
+};
+
+function getContactStatus(contact: string | string[] | undefined) {
+  const value = Array.isArray(contact) ? contact[0] : contact;
+
+  return value === "sent" || value === "error" ? value : null;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const query = await searchParams;
+  const contactStatus = getContactStatus(query.contact);
+  const firstName = Array.isArray(query.firstName)
+    ? query.firstName[0]
+    : query.firstName;
+
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <ContactToast
+        status={contactStatus as ContactStatus | null}
+        firstName={firstName}
+      />
       <SiteHeader />
       <section className="cmm-yellow-field min-h-[calc(100vh-var(--header-height))]">
         <PageHero

@@ -17,8 +17,18 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function redirectToContact(request: Request, status: "sent" | "error") {
-  return Response.redirect(new URL(`/?contact=${status}#contact`, request.url), 303);
+function redirectToContact(
+  request: Request,
+  status: "sent" | "error",
+  firstName?: string,
+) {
+  const url = new URL(`/?contact=${status}`, request.url);
+
+  if (status === "sent" && firstName) {
+    url.searchParams.set("firstName", firstName);
+  }
+
+  return Response.redirect(url, 303);
 }
 
 function escapeHtml(value: string) {
@@ -75,7 +85,7 @@ export async function POST(request: Request) {
 
   if (!apiKey) {
     console.info("Contact form submission", submission);
-    return redirectToContact(request, "sent");
+    return redirectToContact(request, "sent", submission.givenName);
   }
 
   const response = await fetch(brevoEndpoint, {
@@ -120,5 +130,5 @@ export async function POST(request: Request) {
     return redirectToContact(request, "error");
   }
 
-  return redirectToContact(request, "sent");
+  return redirectToContact(request, "sent", submission.givenName);
 }

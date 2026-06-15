@@ -8,6 +8,8 @@ The full site uses the yellow field in light mode.
 
 Dark mode respects system preference through `prefers-color-scheme: dark`. It follows the same token map but swaps the page and header background to near-black with light yellow foreground, accents, borders, and controls. There is no manual theme-switching API yet.
 
+Status colors are tokenized as `--success`, `--success-foreground`, `--destructive`, and `--destructive-foreground`.
+
 ## Palette
 
 | Token | Hex | Use |
@@ -80,6 +82,8 @@ Current image usage:
 Contact form controls use explicit `label`/`id` associations, native `required` attributes, semantic `name` values, browser `autocomplete` tokens, and visible required text marked `aria-hidden` so screen readers rely on native required semantics. Placeholders provide examples but never replace labels. Inputs and textareas start as underline fields; on focus the underline becomes the bottom edge of a full border outline.
 
 The form posts to `/api/contact`. The route logs valid submissions unless `BREVO_API_KEY` is present. With `BREVO_API_KEY`, it sends through Brevo using `BREVO_FROM_EMAIL`, `BREVO_FROM_NAME`, and `CONTACT_TO_EMAIL`.
+
+After submission, the route redirects to `/?contact=sent&firstName=...` or `/?contact=error`. `app/page.tsx` reads `searchParams` on the server and passes the stable status into `components/cmm/contact-toast.tsx` to avoid hydration mismatches. The toast scrolls to the top, displays below the sticky header, sizes to its content, uses `--toast-background`, includes subtle SVG success/error icons, is dismissible, and removes the query parameters from the URL.
 
 ## Open Decisions
 
