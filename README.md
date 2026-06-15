@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cool Molecules Media Website
+
+Modern Next.js rewrite of `coolmolecules.media`.
+
+The first implementation pass defines the CMM design system from the legacy screenshots in `agent_context/cmm-legacy-screenshots/`. The primary visual shift is restoring the former vibrant yellow background as the brand field while retaining the stamp logo, editorial serif type, clean navigation, underline links, and minimal form language.
 
 ## Getting Started
 
@@ -18,16 +22,42 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Design System
+
+- Tokens live in `app/globals.css` using Tailwind v4 `@theme inline`.
+- Source-owned shadcn-style primitives live in `components/ui/`.
+- CMM-specific composed components live in `components/cmm/`.
+- Design notes live in `agent_context/design-system.md`.
+- Font tokens use local system stacks so production builds do not depend on fetching remote Google fonts.
+- Exported production images should go in `public/images/` and will be available at `/images/...`.
+- The single-page header is sticky and hides on downward scroll after the page passes the 15% scroll threshold.
+- Light mode uses a full yellow site background. Dark mode respects system preference through `prefers-color-scheme: dark` and uses near-black surfaces with light yellow text and accents.
+
+## Contact Form
+
+The contact form posts to `app/api/contact/route.ts`.
+
+By default, submissions are validated and logged server-side. To send email through Resend, set these environment variables:
+
+```bash
+RESEND_API_KEY=...
+RESEND_FROM_EMAIL="Cool Molecules Media <contact@coolmolecules.media>"
+CONTACT_TO_EMAIL="hello@coolmolecules.media"
+```
+
+`RESEND_FROM_EMAIL` must use a sender/domain verified in Resend.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+This repo is on Next.js 16. Before writing framework code, read the relevant local docs in `node_modules/next/dist/docs/` as noted in `AGENTS.md`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev
+npm run build
+npm run lint
+```
 
 ## Deploy on Vercel
 
