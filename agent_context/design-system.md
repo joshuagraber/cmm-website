@@ -72,6 +72,7 @@ Current image usage:
 - `components/cmm/photo-grid.tsx` maps the exported square WebP story images into the about grid.
 - `components/cmm/profile-card.tsx` uses founder headshots via `next/image`. Founder images are marked `loading="eager"` with `fetchPriority="high"` to avoid browser lazy-loading stalls on the prominent profile section.
 - `components/cmm/stamp-logo.tsx` uses an inline SVG stamp mark with `currentColor` for the border stroke and text fill.
+- `app/opengraph-image.tsx` and `app/twitter-image.tsx` generate social preview images with the PNG stamp logo centered on the CMM yellow field.
 
 ## Sticky Header
 
