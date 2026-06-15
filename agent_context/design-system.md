@@ -87,6 +87,6 @@ After submission, the route redirects to `/?contact=sent&firstName=...` or `/?co
 
 ## Open Decisions
 
-- Replace the temporary duplicate `linda-table.webp` grid entry if a twelfth distinct image is added.
+- About grid uses 12 distinct story images for the full 2x6 desktop layout.
 - Decide whether the production nav needs a full client-side mobile sheet or a CSS-only menu.
 - Decide whether to add official shadcn CLI/dependencies once more interactive primitives are needed.

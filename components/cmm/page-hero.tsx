@@ -28,11 +28,21 @@ export function PageHero({
           {eyebrow}
         </p>
       ) : null}
-      <h1 className="font-serif text-6xl font-semibold leading-[0.96] tracking-normal text-foreground md:text-8xl">
+      <h1
+        className={cn(
+          "font-serif text-6xl font-semibold leading-[0.96] tracking-normal text-foreground md:text-8xl",
+          align === "center" && "mx-auto max-w-[12ch]",
+        )}
+      >
         {title}
       </h1>
       {deck ? (
-        <p className="mt-8 max-w-3xl text-2xl leading-snug text-foreground md:text-4xl">
+        <p
+          className={cn(
+            "mt-8 max-w-3xl text-2xl leading-snug text-foreground md:text-4xl",
+            align === "center" && "mx-auto",
+          )}
+        >
           {deck}
         </p>
       ) : null}

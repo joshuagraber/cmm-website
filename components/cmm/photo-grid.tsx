@@ -7,12 +7,16 @@ type PhotoGridProps = {
 
 const photos = [
   {
+    src: "/images/doblin-tyler-josh-soap.webp",
+    alt: "Rick Doblin, Ty McCloskey, and Joshua Graber at SOAP",
+  },
+  {
     src: "/images/drue-josh-tyler.webp",
-    alt: "Drue, Joshua Graber, and Ty McCloskey",
+    alt: "Drue Sanders, Joshua Graber, and Ty McCloskey",
   },
   {
     src: "/images/doblin-tyler-soap.webp",
-    alt: "Interview recording at SOAP",
+    alt: "Interview recording at SOAP: Ty and Rick Doblin",
   },
   {
     src: "/images/nyc-panel-interview.webp",
@@ -20,39 +24,35 @@ const photos = [
   },
   {
     src: "/images/photos-whole-gang.webp",
-    alt: "Archive photographs arranged on a wall",
+    alt: "Archive photographs of Richard Barth Sanders and gang, arranged on a wall",
   },
   {
     src: "/images/tapes-table.webp",
-    alt: "Cassette tapes arranged on a table",
+    alt: "Cassette tapes of Richard Sanders's flute recordings arranged on a table",
   },
   {
     src: "/images/kilindi-josh-soap.webp",
-    alt: "Kilindi and Joshua Graber recording an interview",
+    alt: "Kilindi Iyi and Joshua Graber recording an interview",
   },
   {
     src: "/images/susun-goats-josh.webp",
-    alt: "Joshua Graber interviewing Susun outdoors with goats",
+    alt: "Joshua Graber interviewing Susun Weed outdoors amongst her goats",
   },
   {
     src: "/images/painting-ghost.webp",
-    alt: "Portrait painting of a man",
+    alt: "Portrait painting of a Richard Barth Sanders by Linda Shrig",
   },
   {
     src: "/images/linda-table.webp",
-    alt: "Linda standing at a table with Joshua and Ty",
+    alt: "Linda sitting at a table recording an interview with Joshua and Ty",
   },
   {
     src: "/images/painting-andrea.webp",
-    alt: "Painted portrait of Andrea",
+    alt: "Painted portrait of Andrea Layton by Linda Shrig",
   },
   {
     src: "/images/musician-sign.webp",
     alt: "Handmade sign reading the musician relies on your support",
-  },
-  {
-    src: "/images/linda-table.webp",
-    alt: "Interview table with microphones",
   },
 ];
 
