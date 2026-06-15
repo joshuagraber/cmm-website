@@ -89,16 +89,16 @@ export function ContactToast({
 
   return (
     <div
-      className="fixed left-1/2 top-[calc(var(--header-height)+1rem)] z-[60] flex w-fit max-w-[calc(100vw-2rem)] -translate-x-1/2 items-start gap-3 border-2 border-foreground bg-[var(--toast-background)] px-5 py-3 text-sm font-medium leading-snug text-foreground shadow-[0_8px_0_rgb(0_0_0/0.12)] md:top-[calc(var(--header-height)+1.5rem)]"
+      className="fixed left-1/2 top-[calc(var(--header-height)+1rem)] z-[60] flex w-fit max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-3 border-2 border-foreground bg-[var(--toast-background)] px-5 py-3 text-sm font-medium leading-none text-foreground shadow-[0_8px_0_rgb(0_0_0/0.12)] md:top-[calc(var(--header-height)+1.5rem)]"
       role={status === "error" ? "alert" : "status"}
       aria-live={status === "error" ? "assertive" : "polite"}
     >
       <ToastIcon status={status} />
-      <span>{getMessage(status, firstName)}</span>
+      <span className="leading-snug">{getMessage(status, firstName)}</span>
       <button
         type="button"
         aria-label="Dismiss message"
-        className="-mr-2 -mt-2 ml-1 inline-flex size-8 shrink-0 cursor-pointer items-center justify-center text-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="ml-1 inline-flex size-8 shrink-0 cursor-pointer items-center justify-center text-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         onClick={(event) => {
           event.stopPropagation();
           setStatus(null);
