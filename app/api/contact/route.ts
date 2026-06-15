@@ -5,7 +5,7 @@ type ContactSubmission = {
   message: string;
 };
 
-const resendEndpoint = "https://api.resend.com/emails";
+const brevoEndpoint = "https://api.brevo.com/v3/smtp/email";
 
 function stringValue(formData: FormData, name: string) {
   const value = formData.get(name);
@@ -68,10 +68,9 @@ export async function POST(request: Request) {
     return redirectToContact(request, "error");
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const from =
-    process.env.RESEND_FROM_EMAIL ??
-    "Cool Molecules Media <contact@coolmolecules.media>";
+  const apiKey = process.env.BREVO_API_KEY;
+  const fromEmail = process.env.BREVO_FROM_EMAIL ?? "contact@coolmolecules.media";
+  const fromName = process.env.BREVO_FROM_NAME ?? "Cool Molecules Media";
   const to = process.env.CONTACT_TO_EMAIL ?? "hello@coolmolecules.media";
 
   if (!apiKey) {
@@ -79,18 +78,29 @@ export async function POST(request: Request) {
     return redirectToContact(request, "sent");
   }
 
-  const response = await fetch(resendEndpoint, {
+  const response = await fetch(brevoEndpoint, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Accept: "application/json",
+      "api-key": apiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from,
-      to,
-      reply_to: submission.email,
+      sender: {
+        name: fromName,
+        email: fromEmail,
+      },
+      to: [
+        {
+          email: to,
+        },
+      ],
+      replyTo: {
+        name: `${submission.givenName} ${submission.familyName}`,
+        email: submission.email,
+      },
       subject: `Cool Molecules Media contact: ${submission.givenName} ${submission.familyName}`,
-      text: [
+      textContent: [
         "New Cool Molecules Media contact form submission",
         "",
         `Name: ${submission.givenName} ${submission.familyName}`,
@@ -98,12 +108,12 @@ export async function POST(request: Request) {
         "",
         submission.message,
       ].join("\n"),
-      html: buildEmailHtml(submission),
+      htmlContent: buildEmailHtml(submission),
     }),
   });
 
   if (!response.ok) {
-    console.error("Resend contact email failed", {
+    console.error("Brevo contact email failed", {
       status: response.status,
       body: await response.text(),
     });

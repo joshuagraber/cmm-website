@@ -79,7 +79,7 @@ Current image usage:
 
 Contact form controls use explicit `label`/`id` associations, native `required` attributes, semantic `name` values, browser `autocomplete` tokens, and visible required text marked `aria-hidden` so screen readers rely on native required semantics. Placeholders provide examples but never replace labels. Inputs and textareas start as underline fields; on focus the underline becomes the bottom edge of a full border outline.
 
-The form posts to `/api/contact`. The route logs valid submissions unless `RESEND_API_KEY` is present. With `RESEND_API_KEY`, it sends through Resend using `RESEND_FROM_EMAIL` and `CONTACT_TO_EMAIL`.
+The form posts to `/api/contact`. The route logs valid submissions unless `BREVO_API_KEY` is present. With `BREVO_API_KEY`, it sends through Brevo using `BREVO_FROM_EMAIL`, `BREVO_FROM_NAME`, and `CONTACT_TO_EMAIL`.
 
 ## Open Decisions
 

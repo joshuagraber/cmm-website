@@ -37,15 +37,16 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 The contact form posts to `app/api/contact/route.ts`.
 
-By default, submissions are validated and logged server-side. To send email through Resend, set these environment variables:
+By default, submissions are validated and logged server-side. To send email through Brevo, set these environment variables:
 
 ```bash
-RESEND_API_KEY=...
-RESEND_FROM_EMAIL="Cool Molecules Media <contact@coolmolecules.media>"
+BREVO_API_KEY=...
+BREVO_FROM_EMAIL="contact@coolmolecules.media"
+BREVO_FROM_NAME="Cool Molecules Media"
 CONTACT_TO_EMAIL="hello@coolmolecules.media"
 ```
 
-`RESEND_FROM_EMAIL` must use a sender/domain verified in Resend.
+`BREVO_FROM_EMAIL` must be a sender registered and verified in Brevo.
 
 ## Learn More
 
