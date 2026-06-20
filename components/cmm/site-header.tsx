@@ -60,11 +60,11 @@ export function SiteHeader({ active }: SiteHeaderProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex min-h-[var(--header-height)] items-center justify-between border-b border-foreground/10 bg-[var(--header-background)] px-site-x py-6 text-foreground transition-transform duration-300 ease-out md:py-8",
+        "sticky top-0 z-50 flex min-h-[var(--header-height)] items-center justify-between border-b border-foreground/10 bg-[var(--header-background)] px-site-x py-3 text-foreground transition-transform duration-300 ease-out md:py-4",
         hidden && "pointer-events-none -translate-y-full",
       )}
     >
-      <StampLogo className="size-16 md:size-24" />
+      <StampLogo className="size-[3.125rem] md:size-[4.5rem]" />
       <nav aria-label="Primary navigation" className="flex gap-7 text-lg md:text-2xl">
         {links.map((link) => (
           <Link

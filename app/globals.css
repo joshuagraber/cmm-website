@@ -49,14 +49,14 @@
   --radius: 0.5rem;
   --radius-button: 0.125rem 0.125rem 1.5rem 0.125rem;
   --shadow-stamp: 0 0 0 3px var(--cmm-black);
-  --header-height: 7.5rem;
+  --header-height: 5rem;
 
   scroll-behavior: smooth;
 }
 
 @media (min-width: 768px) {
   :root {
-    --header-height: 9.5rem;
+    --header-height: 6.5rem;
   }
 }
 

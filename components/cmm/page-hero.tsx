@@ -30,8 +30,8 @@ export function PageHero({
       ) : null}
       <h1
         className={cn(
-          "font-serif text-6xl font-semibold leading-[0.96] tracking-normal text-foreground md:text-8xl",
-          align === "center" && "mx-auto max-w-[12ch]",
+          "font-serif text-[clamp(3rem,13vw,3.75rem)] font-semibold leading-[0.96] tracking-normal text-foreground md:text-8xl",
+          align === "center" && "mx-auto max-w-[min(12ch,100%)]",
         )}
       >
         {title}

@@ -18,7 +18,6 @@ function StampMark() {
         stroke="currentColor"
         strokeWidth="5"
         strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
       />
       <text
         x="50"
@@ -40,8 +39,8 @@ export function StampLogo({ className }: StampLogoProps) {
       href="/"
       aria-label="Cool Molecules Media home"
       className={cn(
-        "grid size-24 place-items-center bg-transparent text-foreground",
-        className,
+        "grid place-items-center bg-transparent text-foreground",
+        className ?? "size-24",
       )}
     >
       <StampMark />
