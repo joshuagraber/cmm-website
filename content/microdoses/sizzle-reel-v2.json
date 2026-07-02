@@ -1,0 +1,276 @@
+{
+  "id": "sizzle-reel-v2",
+  "title": "Sizzle Reel V2",
+  "description": "A brief audio microdose from the Cool Molecules Media archive, seeded with placeholder editorial metadata.",
+  "speakerLabel": "CMM Archive",
+  "icon": "ghost",
+  "tags": [
+    "archive",
+    "audio",
+    "psychedelia"
+  ],
+  "tabColorPairs": [
+    {
+      "surface": "var(--acid-tab-surface-a)",
+      "icon": "var(--brand-accent-cool)"
+    },
+    {
+      "surface": "var(--acid-tab-surface-b)",
+      "icon": "var(--brand-accent-warm)"
+    },
+    {
+      "surface": "var(--acid-tab-surface-c)",
+      "icon": "var(--brand-ink-strong)"
+    },
+    {
+      "surface": "var(--acid-tab-surface-d)",
+      "icon": "var(--brand-accent-cool)"
+    }
+  ],
+  "media": {
+    "type": "audio",
+    "src": "/audio/sizzle_reel_v2.mp3",
+    "durationSeconds": 132
+  },
+  "subjectIds": [
+    "joshua-graber",
+    "ty-mccloskey"
+  ],
+  "transcript": [
+    {
+      "start": 0,
+      "end": 2,
+      "text": "Who loves the ghost?"
+    },
+    {
+      "start": 2,
+      "end": 4,
+      "text": "The ghost."
+    },
+    {
+      "start": 4,
+      "end": 5,
+      "text": "The ghost?"
+    },
+    {
+      "start": 5,
+      "end": 7,
+      "text": "The eric ghost."
+    },
+    {
+      "start": 7,
+      "end": 9,
+      "text": "That's what it is."
+    },
+    {
+      "start": 9,
+      "end": 12,
+      "text": "He is a remarkable guy."
+    },
+    {
+      "start": 12,
+      "end": 14,
+      "text": "And after a while, Gold would just say,"
+    },
+    {
+      "start": 14,
+      "end": 18,
+      "text": "\"Okay, kid, who are you now and how much is your bail?\""
+    },
+    {
+      "start": 18,
+      "end": 20,
+      "text": "And then finally he said,"
+    },
+    {
+      "start": 20,
+      "end": 22,
+      "text": "\"When you call up and you get my secretary,"
+    },
+    {
+      "start": 22,
+      "end": 25,
+      "text": "just tell her you're the ghost and I'll know who you are.\""
+    },
+    {
+      "start": 25,
+      "end": 28,
+      "text": "I think it's July."
+    },
+    {
+      "start": 28,
+      "end": 32,
+      "text": "His Christmas tree is still up and the whole apartment is twinkling."
+    },
+    {
+      "start": 32,
+      "end": 35,
+      "text": "And he just looks at me and his eyes are like,"
+    },
+    {
+      "start": 35,
+      "end": 39,
+      "text": "\"Loosey in the sky with diamonds."
+    },
+    {
+      "start": 39,
+      "end": 40,
+      "text": "Colitis go by.\""
+    },
+    {
+      "start": 40,
+      "end": 43,
+      "text": "So piercing and so benign."
+    },
+    {
+      "start": 43,
+      "end": 45,
+      "text": "And they just went right through me."
+    },
+    {
+      "start": 45,
+      "end": 49,
+      "text": "I felt very trusting of the environment and of the people,"
+    },
+    {
+      "start": 49,
+      "end": 50,
+      "text": "especially him."
+    },
+    {
+      "start": 50,
+      "end": 53,
+      "text": "As soon as I looked in this guy's eyes, I trusted him."
+    },
+    {
+      "start": 53,
+      "end": 54,
+      "text": "I just did."
+    },
+    {
+      "start": 54,
+      "end": 56,
+      "text": "Which should have I?"
+    },
+    {
+      "start": 56,
+      "end": 58,
+      "text": "Well, that's questionable."
+    },
+    {
+      "start": 62,
+      "end": 64,
+      "text": "He was kind of an icon to me."
+    },
+    {
+      "start": 64,
+      "end": 66,
+      "text": "It was like meeting Batman or something."
+    },
+    {
+      "start": 66,
+      "end": 69,
+      "text": "He was larger than life before I ever knew him."
+    },
+    {
+      "start": 70,
+      "end": 72,
+      "text": "And I believe the ghost did a good job."
+    },
+    {
+      "start": 72,
+      "end": 74,
+      "text": "He also purified the acid e-made."
+    },
+    {
+      "start": 74,
+      "end": 79,
+      "text": "At the time, in 1977, he was a large-scale producer."
+    },
+    {
+      "start": 79,
+      "end": 81,
+      "text": "One of the major sources."
+    },
+    {
+      "start": 82,
+      "end": 84,
+      "text": "All of the women that were close to him,"
+    },
+    {
+      "start": 84,
+      "end": 86,
+      "text": "the three of us in particular,"
+    },
+    {
+      "start": 86,
+      "end": 90,
+      "text": "somehow always rationalized the things that he did."
+    },
+    {
+      "start": 90,
+      "end": 92,
+      "text": "\"Oh, he set me down the garden path,"
+    },
+    {
+      "start": 92,
+      "end": 95,
+      "text": "but in the end, it was good for my enlightenment.\""
+    },
+    {
+      "start": 95,
+      "end": 96,
+      "text": "Bullshit."
+    },
+    {
+      "start": 96,
+      "end": 101,
+      "text": "We were delusionally young women that needed a guru to look up to."
+    },
+    {
+      "start": 101,
+      "end": 105,
+      "text": "And really, we're willing to just blind ourselves"
+    },
+    {
+      "start": 105,
+      "end": 109,
+      "text": "to the, you know, to the underbelly,"
+    },
+    {
+      "start": 109,
+      "end": 112,
+      "text": "which never really showed itself until after the bust."
+    },
+    {
+      "start": 112,
+      "end": 114,
+      "text": "That was the test."
+    },
+    {
+      "start": 114,
+      "end": 116,
+      "text": "That was the challenge for him."
+    },
+    {
+      "start": 119,
+      "end": 122,
+      "text": "This is yours truly our ghost saying thanks for listening."
+    },
+    {
+      "start": 122,
+      "end": 128,
+      "text": "And remember, you can call me anytime at 213-624-4341."
+    },
+    {
+      "start": 128,
+      "end": 130,
+      "text": "We look forward to hearing from you."
+    },
+    {
+      "start": 130,
+      "end": 132,
+      "text": "Till then, five for now."
+    }
+  ]
+}

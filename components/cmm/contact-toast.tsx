@@ -89,7 +89,7 @@ export function ContactToast({
 
   return (
     <div
-      className="fixed left-1/2 top-[calc(var(--header-height)+1rem)] z-[60] flex w-fit max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-3 border-2 border-foreground bg-[var(--toast-background)] px-5 py-3 text-sm font-medium leading-none text-foreground shadow-[0_8px_0_rgb(0_0_0/0.12)] md:top-[calc(var(--header-height)+1.5rem)]"
+      className="fixed left-1/2 top-[calc(var(--header-height)+1rem)] z-[60] flex w-fit max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-3 border-2 border-foreground bg-[var(--toast-background)] px-5 py-3 text-sm font-medium leading-none text-foreground shadow-[0_8px_0_var(--toast-shadow)] md:top-[calc(var(--header-height)+1.5rem)]"
       role={status === "error" ? "alert" : "status"}
       aria-live={status === "error" ? "assertive" : "polite"}
     >

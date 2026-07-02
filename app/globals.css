@@ -1,54 +1,127 @@
 @import "tailwindcss";
 
 :root {
+
+  /* Primitive color tokens */
+  --cmm-color-yellow-100: #fff9d9;
+  --cmm-color-yellow-125: #fff8c7;
+  --cmm-color-yellow-200: #fff6a8;
+  --cmm-color-yellow-250: #fff3a6;
+  --cmm-color-yellow-300: #fff06a;
+  --cmm-color-yellow-350: #ffea5f;
+  --cmm-color-yellow-400: #ffe23f;
+  --cmm-color-yellow-500: #f0d94a;
+  --cmm-color-yellow-650: #d9ca73;
+  --cmm-color-yellow-800: #6f641d;
+  --cmm-color-olive-800: #3a310c;
+  --cmm-color-olive-850: #2a250c;
+  --cmm-color-olive-900: #211c08;
+  --cmm-color-olive-950: #17140a;
+  --cmm-color-ink-700: #343434;
+  --cmm-color-ink-800: #171717;
+  --cmm-color-ink-900: #0b0b0b;
+  --cmm-color-ink-950: #050505;
+  --cmm-color-gray-500: #767676;
+  --cmm-color-gray-700: #6d6d6d;
+  --cmm-color-line-300: #d8d4bd;
+  --cmm-color-line-800: #5c5225;
+  --cmm-color-paper: #ffffff;
+  --cmm-color-cream-50: #fffdf2;
+  --cmm-color-cream-950: #0b0b08;
+  --cmm-color-coral-500: #ed6a5a;
+  --cmm-color-coral-300: #ff9b88;
+  --cmm-color-pink-500: #ff4db8;
+  --cmm-color-blue-500: #1d6c8f;
+  --cmm-color-blue-300: #8bd7ff;
+  --cmm-color-green-500: #587a3d;
+  --cmm-color-green-300: #d8ef97;
+  --cmm-color-green-600: #4f7f3a;
+  --cmm-color-green-300-success: #b8d982;
+  --cmm-color-red-600: #b24b3b;
+  --cmm-color-white-alpha-14: rgb(255 255 255 / 0.14);
+  --cmm-color-white-alpha-18: rgb(255 255 255 / 0.18);
+  --cmm-color-ink-alpha-02: rgb(11 11 11 / 0.02);
+  --cmm-color-ink-alpha-025: rgb(11 11 11 / 0.025);
+  --cmm-color-ink-alpha-12: rgb(11 11 11 / 0.12);
+  --cmm-color-yellow-alpha-08: rgb(255 240 106 / 0.08);
+  --cmm-color-yellow-alpha-12: rgb(255 240 106 / 0.12);
+  --cmm-color-cream-alpha-72: rgb(255 253 242 / 0.72);
+
+}
+
+:root {
   color-scheme: light;
 
-  /* CMM brand palette */
-  --cmm-yellow: #ffe23f;
-  --cmm-yellow-soft: #fff3a6;
-  --cmm-yellow-pale: #fff9d9;
-  --cmm-black: #0b0b0b;
-  --cmm-ink: #171717;
-  --cmm-charcoal: #343434;
-  --cmm-gray: #767676;
-  --cmm-line: #d8d4bd;
-  --cmm-paper: #ffffff;
-  --cmm-cream: #fffdf2;
-  --cmm-coral: #ed6a5a;
-  --cmm-blue: #1d6c8f;
-  --cmm-green: #587a3d;
-  --cmm-near-black: #050505;
+  /* Light theme semantic tokens */
+  --background: var(--cmm-color-yellow-400);
+  --foreground: var(--cmm-color-ink-800);
+  --card: var(--cmm-color-yellow-400);
+  --card-foreground: var(--cmm-color-ink-800);
+  --popover: var(--cmm-color-yellow-400);
+  --popover-foreground: var(--cmm-color-ink-800);
+  --primary: var(--cmm-color-ink-900);
+  --primary-foreground: var(--cmm-color-paper);
+  --secondary: var(--cmm-color-yellow-400);
+  --secondary-foreground: var(--cmm-color-ink-900);
+  --muted: var(--cmm-color-yellow-100);
+  --muted-foreground: var(--cmm-color-ink-700);
+  --accent: var(--cmm-color-coral-500);
+  --accent-foreground: var(--cmm-color-paper);
+  --success: var(--cmm-color-green-600);
+  --success-foreground: var(--cmm-color-paper);
+  --destructive: var(--cmm-color-red-600);
+  --destructive-foreground: var(--cmm-color-paper);
+  --border: var(--cmm-color-line-300);
+  --input: var(--cmm-color-gray-700);
+  --ring: var(--cmm-color-ink-900);
+  --header-background: var(--cmm-color-yellow-400);
+  --toast-background: var(--cmm-color-yellow-250);
+  --toast-shadow: var(--cmm-color-ink-alpha-12);
+  --field-band: var(--cmm-color-white-alpha-14);
+  --field-band-strong: var(--cmm-color-white-alpha-18);
+  --paper-field: var(--cmm-color-paper);
+  --paper-field-band: var(--cmm-color-ink-alpha-025);
+  --paper-field-band-strong: var(--cmm-color-ink-alpha-02);
+  --stamp-shadow: var(--cmm-color-ink-900);
 
-  /* Semantic tokens */
-  --background: var(--cmm-yellow);
-  --foreground: var(--cmm-ink);
-  --card: var(--cmm-yellow);
-  --card-foreground: var(--cmm-ink);
-  --popover: var(--cmm-yellow);
-  --popover-foreground: var(--cmm-ink);
-  --primary: var(--cmm-black);
-  --primary-foreground: var(--cmm-paper);
-  --secondary: var(--cmm-yellow);
-  --secondary-foreground: var(--cmm-black);
-  --muted: var(--cmm-yellow-pale);
-  --muted-foreground: var(--cmm-charcoal);
-  --accent: var(--cmm-coral);
-  --accent-foreground: var(--cmm-paper);
-  --success: #4f7f3a;
-  --success-foreground: var(--cmm-paper);
-  --destructive: #b24b3b;
-  --destructive-foreground: var(--cmm-paper);
-  --border: var(--cmm-line);
-  --input: #6d6d6d;
-  --ring: var(--cmm-black);
-  --header-background: var(--cmm-yellow);
-  --toast-background: var(--cmm-yellow-soft);
-  --field-band: rgb(255 255 255 / 0.14);
-  --field-band-strong: rgb(255 255 255 / 0.18);
+  --brand-field: var(--cmm-color-yellow-400);
+  --brand-field-soft: var(--cmm-color-yellow-250);
+  --brand-field-muted: var(--cmm-color-yellow-100);
+  --brand-paper: var(--cmm-color-paper);
+  --brand-paper-muted: var(--cmm-color-cream-50);
+  --brand-ink: var(--cmm-color-ink-800);
+  --brand-ink-strong: var(--cmm-color-ink-900);
+  --brand-ink-muted: var(--cmm-color-ink-700);
+  --brand-line: var(--cmm-color-line-300);
+  --brand-accent-warm: var(--cmm-color-coral-500);
+  --brand-accent-cool: var(--cmm-color-blue-500);
+  --brand-accent-organic: var(--cmm-color-green-500);
+
+  --acid-tab-ink: var(--cmm-color-ink-900);
+  --acid-tab-surface-a: color-mix(in srgb, var(--brand-field) 72%, var(--brand-accent-warm) 28%);
+  --acid-tab-surface-b: color-mix(in srgb, var(--brand-field) 62%, var(--brand-accent-organic) 38%);
+  --acid-tab-surface-c: color-mix(in srgb, var(--brand-paper) 55%, var(--brand-accent-cool) 45%);
+  --acid-tab-surface-d: color-mix(in srgb, var(--brand-field) 68%, var(--brand-ink-muted) 32%);
+  --acid-tab-title-surface: color-mix(in srgb, var(--acid-tab-surface) 72%, transparent);
+  --microdose-sheet-bg: var(--cmm-color-yellow-350);
+  --microdose-detail-surface: var(--cmm-color-yellow-350);
+  --microdose-detail-chip: var(--cmm-color-yellow-300);
+  --microdose-player-surface: var(--microdose-detail-surface);
+  --microdose-waveform-stage: var(--cmm-color-yellow-200);
+  --microdose-waveform-progress: var(--cmm-color-ink-900);
+  --microdose-waveform-cursor: var(--cmm-color-pink-500);
+  --microdose-waveform-sheen: var(--cmm-color-ink-alpha-025);
+  --microdose-waveform-wave-a: var(--brand-accent-cool);
+  --microdose-waveform-wave-b: var(--brand-accent-organic);
+  --microdose-waveform-wave-c: var(--brand-field);
+  --microdose-waveform-wave-d: var(--brand-accent-warm);
+  --microdose-transcript-active-bg: var(--cmm-color-yellow-500);
+  --microdose-transcript-active-fg: var(--foreground);
+  --microdose-transcript-active-border: var(--cmm-color-yellow-800);
 
   --radius: 0.5rem;
   --radius-button: 0.125rem 0.125rem 1.5rem 0.125rem;
-  --shadow-stamp: 0 0 0 3px var(--cmm-black);
+  --shadow-stamp: 0 0 0 3px var(--stamp-shadow);
   --header-height: 5rem;
 
   scroll-behavior: smooth;
@@ -64,45 +137,71 @@
   :root {
     color-scheme: dark;
 
-    --cmm-yellow: #fff06a;
-    --cmm-yellow-soft: #fff6a8;
-    --cmm-yellow-pale: #2a250c;
-    --cmm-black: #050505;
-    --cmm-ink: #fff3a6;
-    --cmm-charcoal: #fff8c7;
-    --cmm-gray: #d9ca73;
-    --cmm-line: #5c5225;
-    --cmm-paper: #050505;
-    --cmm-cream: #0b0b08;
-    --cmm-coral: #ff9b88;
-    --cmm-blue: #8bd7ff;
-    --cmm-green: #d8ef97;
+    --background: var(--cmm-color-ink-950);
+    --foreground: var(--cmm-color-yellow-200);
+    --card: var(--cmm-color-cream-950);
+    --card-foreground: var(--cmm-color-yellow-200);
+    --popover: var(--cmm-color-cream-950);
+    --popover-foreground: var(--cmm-color-yellow-200);
+    --primary: var(--cmm-color-yellow-200);
+    --primary-foreground: var(--cmm-color-ink-950);
+    --secondary: var(--cmm-color-yellow-300);
+    --secondary-foreground: var(--cmm-color-ink-950);
+    --muted: var(--cmm-color-olive-850);
+    --muted-foreground: var(--cmm-color-yellow-650);
+    --accent: var(--cmm-color-yellow-300);
+    --accent-foreground: var(--cmm-color-ink-950);
+    --success: var(--cmm-color-green-300-success);
+    --success-foreground: var(--cmm-color-ink-950);
+    --destructive: var(--cmm-color-coral-300);
+    --destructive-foreground: var(--cmm-color-ink-950);
+    --border: var(--cmm-color-line-800);
+    --input: var(--cmm-color-yellow-650);
+    --ring: var(--cmm-color-yellow-200);
+    --header-background: var(--cmm-color-ink-950);
+    --toast-background: var(--cmm-color-cream-950);
+    --toast-shadow: var(--cmm-color-ink-alpha-12);
+    --field-band: var(--cmm-color-yellow-alpha-08);
+    --field-band-strong: var(--cmm-color-yellow-alpha-12);
+    --paper-field: var(--cmm-color-ink-950);
+    --paper-field-band: var(--cmm-color-yellow-alpha-08);
+    --paper-field-band-strong: var(--cmm-color-yellow-alpha-12);
+    --stamp-shadow: var(--cmm-color-yellow-200);
 
-    --background: var(--cmm-near-black);
-    --foreground: var(--cmm-yellow-soft);
-    --card: #0b0b08;
-    --card-foreground: var(--cmm-yellow-soft);
-    --popover: #0b0b08;
-    --popover-foreground: var(--cmm-yellow-soft);
-    --primary: var(--cmm-yellow-soft);
-    --primary-foreground: var(--cmm-near-black);
-    --secondary: var(--cmm-yellow);
-    --secondary-foreground: var(--cmm-near-black);
-    --muted: #181405;
-    --muted-foreground: var(--cmm-gray);
-    --accent: var(--cmm-yellow);
-    --accent-foreground: var(--cmm-near-black);
-    --success: #b8d982;
-    --success-foreground: var(--cmm-near-black);
-    --destructive: #ff9b88;
-    --destructive-foreground: var(--cmm-near-black);
-    --border: var(--cmm-line);
-    --input: var(--cmm-gray);
-    --ring: var(--cmm-yellow-soft);
-    --header-background: var(--cmm-near-black);
-    --toast-background: #171403;
-    --field-band: rgb(255 240 106 / 0.08);
-    --field-band-strong: rgb(255 240 106 / 0.12);
+    --brand-field: var(--cmm-color-yellow-300);
+    --brand-field-soft: var(--cmm-color-yellow-200);
+    --brand-field-muted: var(--cmm-color-olive-850);
+    --brand-paper: var(--cmm-color-ink-950);
+    --brand-paper-muted: var(--cmm-color-cream-950);
+    --brand-ink: var(--cmm-color-yellow-250);
+    --brand-ink-strong: var(--cmm-color-yellow-200);
+    --brand-ink-muted: var(--cmm-color-yellow-650);
+    --brand-line: var(--cmm-color-line-800);
+    --brand-accent-warm: var(--cmm-color-coral-300);
+    --brand-accent-cool: var(--cmm-color-blue-300);
+    --brand-accent-organic: var(--cmm-color-green-300);
+
+    --acid-tab-ink: var(--cmm-color-yellow-200);
+    --acid-tab-surface-a: color-mix(in srgb, var(--background) 68%, var(--brand-accent-warm) 32%);
+    --acid-tab-surface-b: color-mix(in srgb, var(--background) 62%, var(--brand-accent-organic) 38%);
+    --acid-tab-surface-c: color-mix(in srgb, var(--background) 58%, var(--brand-accent-cool) 42%);
+    --acid-tab-surface-d: color-mix(in srgb, var(--background) 78%, var(--brand-field) 22%);
+    --acid-tab-title-surface: color-mix(in srgb, var(--acid-tab-surface) 72%, transparent);
+    --microdose-sheet-bg: var(--cmm-color-olive-950);
+    --microdose-detail-surface: var(--cmm-color-olive-950);
+    --microdose-detail-chip: var(--cmm-color-olive-900);
+    --microdose-player-surface: var(--microdose-detail-surface);
+    --microdose-waveform-stage: var(--cmm-color-ink-950);
+    --microdose-waveform-progress: var(--cmm-color-yellow-300);
+    --microdose-waveform-cursor: var(--cmm-color-coral-300);
+    --microdose-waveform-sheen: var(--cmm-color-white-alpha-18);
+    --microdose-waveform-wave-a: var(--brand-accent-cool);
+    --microdose-waveform-wave-b: var(--brand-accent-organic);
+    --microdose-waveform-wave-c: var(--brand-field);
+    --microdose-waveform-wave-d: var(--brand-accent-warm);
+    --microdose-transcript-active-bg: var(--cmm-color-olive-800);
+    --microdose-transcript-active-fg: var(--foreground);
+    --microdose-transcript-active-border: var(--cmm-color-yellow-300);
   }
 }
 
@@ -128,20 +227,33 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-cmm-yellow: var(--cmm-yellow);
-  --color-cmm-yellow-soft: var(--cmm-yellow-soft);
-  --color-cmm-yellow-pale: var(--cmm-yellow-pale);
-  --color-cmm-black: var(--cmm-black);
-  --color-cmm-ink: var(--cmm-ink);
-  --color-cmm-charcoal: var(--cmm-charcoal);
-  --color-cmm-gray: var(--cmm-gray);
-  --color-cmm-line: var(--cmm-line);
-  --color-cmm-paper: var(--cmm-paper);
-  --color-cmm-cream: var(--cmm-cream);
-  --color-cmm-coral: var(--cmm-coral);
-  --color-cmm-blue: var(--cmm-blue);
-  --color-cmm-green: var(--cmm-green);
-  --color-cmm-near-black: var(--cmm-near-black);
+  --color-cmm-yellow: var(--brand-field);
+  --color-cmm-yellow-soft: var(--brand-field-soft);
+  --color-cmm-yellow-pale: var(--brand-field-muted);
+  --color-cmm-black: var(--brand-ink-strong);
+  --color-cmm-ink: var(--brand-ink);
+  --color-cmm-charcoal: var(--brand-ink-muted);
+  --color-cmm-gray: var(--muted-foreground);
+  --color-cmm-line: var(--brand-line);
+  --color-cmm-paper: var(--brand-paper);
+  --color-cmm-cream: var(--brand-paper-muted);
+  --color-cmm-coral: var(--brand-accent-warm);
+  --color-cmm-blue: var(--brand-accent-cool);
+  --color-cmm-green: var(--brand-accent-organic);
+  --color-cmm-near-black: var(--primary-foreground);
+  --color-acid-tab-ink: var(--acid-tab-ink);
+  --color-acid-tab-surface-a: var(--acid-tab-surface-a);
+  --color-acid-tab-surface-b: var(--acid-tab-surface-b);
+  --color-acid-tab-surface-c: var(--acid-tab-surface-c);
+  --color-acid-tab-surface-d: var(--acid-tab-surface-d);
+  --color-acid-tab-title-surface: var(--acid-tab-title-surface);
+  --color-microdose-sheet: var(--microdose-sheet-bg);
+  --color-microdose-detail-surface: var(--microdose-detail-surface);
+  --color-microdose-detail-chip: var(--microdose-detail-chip);
+  --color-microdose-waveform-stage: var(--microdose-waveform-stage);
+  --color-microdose-transcript-active-bg: var(--microdose-transcript-active-bg);
+  --color-microdose-transcript-active-fg: var(--microdose-transcript-active-fg);
+  --color-microdose-transcript-active-border: var(--microdose-transcript-active-border);
   --font-sans: Arial, Helvetica, sans-serif;
   --font-serif: Georgia, "Times New Roman", Times, serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
@@ -168,12 +280,16 @@ body {
 }
 
 ::selection {
-  background: var(--cmm-yellow);
-  color: var(--cmm-black);
+  background: var(--brand-field);
+  color: var(--brand-ink-strong);
 }
 
 a {
   color: inherit;
+}
+
+button {
+  font: inherit;
 }
 
 .cmm-yellow-field {
@@ -181,11 +297,4 @@ a {
     linear-gradient(35deg, transparent 0 18%, var(--field-band) 18% 30%, transparent 30% 100%),
     linear-gradient(150deg, transparent 0 24%, var(--field-band-strong) 24% 37%, transparent 37% 100%),
     var(--background);
-}
-
-.cmm-paper-field {
-  background:
-    linear-gradient(35deg, transparent 0 18%, rgb(11 11 11 / 0.025) 18% 30%, transparent 30% 100%),
-    linear-gradient(150deg, transparent 0 24%, rgb(11 11 11 / 0.02) 24% 37%, transparent 37% 100%),
-    var(--cmm-paper);
 }

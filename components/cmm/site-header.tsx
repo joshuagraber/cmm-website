@@ -6,12 +6,13 @@ import { StampLogo } from "@/components/cmm/stamp-logo";
 import { cn } from "@/lib/utils";
 
 type SiteHeaderProps = {
-  active?: "about" | "contact";
+  active?: "about" | "contact" | "microdoses";
 };
 
 const links = [
-  { href: "#about", label: "About", key: "about" },
-  { href: "#contact", label: "Contact", key: "contact" },
+  { href: "/#about", label: "About", key: "about" },
+  { href: "/microdoses", label: "Microdoses", key: "microdoses" },
+  { href: "/#contact", label: "Contact", key: "contact" },
 ] as const;
 
 export function SiteHeader({ active }: SiteHeaderProps) {

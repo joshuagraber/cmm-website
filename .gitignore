@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/vendor/whisper.cpp
+/vendor/whisper-models
 /.pnp
 .pnp.*
 .yarn/*
