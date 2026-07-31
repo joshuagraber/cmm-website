@@ -37,4 +37,4 @@ Requirements otherwise:
 
 
 ## Starter data
-I've added `public/audio/sizzle_reel_v2.mp3`. Please use this to create everything you need. Just use lorem ipsum stuff for the metadata, I'll fill in more realistic values later.
+Use real microdose audio from `public/audio/microdoses/`. Avoid sizzle-reel fixtures and lorem ipsum metadata.

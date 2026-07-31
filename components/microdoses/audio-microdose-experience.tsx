@@ -61,6 +61,12 @@ function getWaveformThemeColors() {
   };
 }
 
+function getSegmentLabel(segment: Microdose["transcript"][number]) {
+  return [formatTime(segment.start), segment.speaker?.name]
+    .filter(Boolean)
+    .join(" / ");
+}
+
 export function AudioMicrodoseExperience({
   microdose,
 }: AudioMicrodoseExperienceProps) {
@@ -222,54 +228,62 @@ export function AudioMicrodoseExperience({
           ref={transcriptContainerRef}
           className="mt-6 max-h-[34rem] overflow-y-auto pr-2"
         >
-          {microdose.transcript.map((segment, index) => {
-            const active = index === activeSegmentIndex;
+          {microdose.transcript.length > 0 ? (
+            microdose.transcript.map((segment, index) => {
+              const active = index === activeSegmentIndex;
 
-            return (
-              <button
-                key={`${segment.start}-${segment.text}`}
-                ref={active ? activeTranscriptRef : null}
-                type="button"
-                onClick={() => seekTo(segment.start)}
-                className={cn(
-                  "mb-3 block w-full border-2 border-foreground bg-microdose-detail-chip p-4 text-left transition-colors",
-                  active &&
-                    "border-microdose-transcript-active-border bg-microdose-transcript-active-bg text-microdose-transcript-active-fg shadow-[inset_0.35rem_0_0_var(--microdose-transcript-active-border)]",
-                )}
-              >
-                <span className="mb-2 block font-mono text-xs font-bold uppercase">
-                  {formatTime(segment.start)}
-                </span>
-                <span className="text-lg leading-snug">{segment.text}</span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={`${segment.start}-${segment.text}`}
+                  ref={active ? activeTranscriptRef : null}
+                  type="button"
+                  onClick={() => seekTo(segment.start)}
+                  className={cn(
+                    "mb-3 block w-full border-2 border-foreground bg-microdose-detail-chip p-4 text-left transition-colors",
+                    active &&
+                      "border-microdose-transcript-active-border bg-microdose-transcript-active-bg text-microdose-transcript-active-fg shadow-[inset_0.35rem_0_0_var(--microdose-transcript-active-border)]",
+                  )}
+                >
+                  <span className="mb-2 block font-mono text-xs font-bold uppercase">
+                    {getSegmentLabel(segment)}
+                  </span>
+                  <span className="text-lg leading-snug">{segment.text}</span>
+                </button>
+              );
+            })
+          ) : (
+            <p className="border-2 border-foreground bg-microdose-detail-chip p-4 text-lg leading-snug">
+              Transcript pending.
+            </p>
+          )}
         </div>
       </aside>
 
-      <section className="lg:col-span-2">
-        <h2 className="font-serif text-5xl font-black leading-none">
-          Subjects
-        </h2>
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {microdose.subjects.map((subject) => (
-            <article
-              key={subject.name}
-              className="border-[6px] border-foreground bg-microdose-detail-surface p-5"
-            >
-              <h3 className="font-serif text-3xl font-black leading-tight">
-                {subject.name}
-              </h3>
-              {subject.role ? (
-                <p className="mt-1 font-bold uppercase tracking-[0.12em]">
-                  {subject.role}
-                </p>
-              ) : null}
-              <p className="mt-4 text-lg leading-relaxed">{subject.bio}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      {microdose.subjects.length > 0 ? (
+        <section className="lg:col-span-2">
+          <h2 className="font-serif text-5xl font-black leading-none">
+            Subjects
+          </h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            {microdose.subjects.map((subject) => (
+              <article
+                key={subject.name}
+                className="border-[6px] border-foreground bg-microdose-detail-surface p-5"
+              >
+                <h3 className="font-serif text-3xl font-black leading-tight">
+                  {subject.name}
+                </h3>
+                {subject.role ? (
+                  <p className="mt-1 font-bold uppercase tracking-[0.12em]">
+                    {subject.role}
+                  </p>
+                ) : null}
+                <p className="mt-4 text-lg leading-relaxed">{subject.bio}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {microdose.tags.length > 0 ? (
         <section className="lg:col-span-2">

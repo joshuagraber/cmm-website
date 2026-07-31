@@ -21,7 +21,7 @@ if (process.platform === "darwin" && !forceSource && resolveCommand("brew")) {
 console.log("");
 console.log("whisper.cpp is ready.");
 console.log(
-  `Try: npm run microdoses:transcribe -- --id sizzle-reel-v2 --model ${path.relative(root, modelPath)}`,
+  `Try: npm run microdoses:transcribe -- --id gul-dolen-meeting-alex-shulgin --model ${path.relative(root, modelPath)}`,
 );
 
 function setupWithHomebrew() {

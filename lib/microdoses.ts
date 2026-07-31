@@ -10,6 +10,12 @@ export type MicrodoseSubject = {
   bio: string;
 };
 
+export type MicrodoseSpeaker = {
+  id: string;
+  name: string;
+  role?: string;
+};
+
 export type MicrodoseTabColorPair = {
   surface: string;
   icon: string;
@@ -19,6 +25,8 @@ export type TranscriptSegment = {
   start: number;
   end: number;
   text: string;
+  speakerId?: string;
+  speaker?: MicrodoseSpeaker;
 };
 
 export type AudioMicrodoseMedia = {
@@ -36,12 +44,14 @@ export type Microdose = {
   tags: string[];
   tabColorPairs: MicrodoseTabColorPair[];
   media: AudioMicrodoseMedia;
+  speakers: MicrodoseSpeaker[];
   subjects: MicrodoseSubject[];
   transcript: TranscriptSegment[];
 };
 
 const contentDirectory = path.join(process.cwd(), "content", "microdoses");
 const subjectsPath = path.join(process.cwd(), "content", "subjects.json");
+const speakersPath = path.join(process.cwd(), "content", "speakers.json");
 const iconNames = new Set<MicrodoseIcon>([
   "ghost",
   "octopus",
@@ -114,11 +124,50 @@ function validateSubjects(input: unknown) {
   return subjects;
 }
 
+function validateSpeakers(input: unknown) {
+  if (!Array.isArray(input)) {
+    throw new Error("Speakers registry must be an array.");
+  }
+
+  const speakers = input.map((speaker, index) => {
+    if (!isRecord(speaker)) {
+      throw new Error(`Speaker registry item ${index} must be an object.`);
+    }
+
+    return {
+      id: readString(speaker.id, `speakers[${index}].id`),
+      name: readString(speaker.name, `speakers[${index}].name`),
+      role:
+        speaker.role === undefined
+          ? undefined
+          : readString(speaker.role, `speakers[${index}].role`),
+    };
+  });
+
+  const speakerIds = new Set<string>();
+  for (const speaker of speakers) {
+    if (speakerIds.has(speaker.id)) {
+      throw new Error(`Duplicate speaker id "${speaker.id}".`);
+    }
+
+    speakerIds.add(speaker.id);
+  }
+
+  return speakers;
+}
+
 function getSubjectMap() {
   const contents = fs.readFileSync(subjectsPath, "utf8");
   const subjects = validateSubjects(JSON.parse(contents));
 
   return new Map(subjects.map((subject) => [subject.id, subject]));
+}
+
+function getSpeakerMap() {
+  const contents = fs.readFileSync(speakersPath, "utf8");
+  const speakers = validateSpeakers(JSON.parse(contents));
+
+  return new Map(speakers.map((speaker) => [speaker.id, speaker]));
 }
 
 function readTabColorPairs(value: unknown, field: string) {
@@ -145,6 +194,7 @@ function readTabColorPairs(value: unknown, field: string) {
 export function validateMicrodose(
   input: unknown,
   subjectMap = getSubjectMap(),
+  speakerMap = getSpeakerMap(),
 ): Microdose {
   if (!isRecord(input)) {
     throw new Error("Microdose record must be an object.");
@@ -156,6 +206,8 @@ export function validateMicrodose(
   }
 
   const subjectIds = readStringArray(input.subjectIds, "subjectIds");
+  const speakerIds = readStringArray(input.speakerIds ?? [], "speakerIds");
+  const microdoseSpeakerIds = new Set(speakerIds);
 
   const transcript = input.transcript;
   if (!Array.isArray(transcript)) {
@@ -192,6 +244,15 @@ export function validateMicrodose(
 
       return subject;
     }),
+    speakers: speakerIds.map((speakerId) => {
+      const speaker = speakerMap.get(speakerId);
+
+      if (!speaker) {
+        throw new Error(`Microdose speaker "${speakerId}" was not found.`);
+      }
+
+      return speaker;
+    }),
     transcript: transcript.map((segment, index) => {
       if (!isRecord(segment)) {
         throw new Error(`Microdose transcript[${index}] must be an object.`);
@@ -209,10 +270,30 @@ export function validateMicrodose(
         );
       }
 
+      const speakerId =
+        segment.speakerId === undefined
+          ? undefined
+          : readString(segment.speakerId, `transcript[${index}].speakerId`);
+      const speaker = speakerId ? speakerMap.get(speakerId) : undefined;
+
+      if (speakerId && !speaker) {
+        throw new Error(
+          `Microdose transcript[${index}].speakerId "${speakerId}" was not found.`,
+        );
+      }
+
+      if (speakerId && !microdoseSpeakerIds.has(speakerId)) {
+        throw new Error(
+          `Microdose transcript[${index}].speakerId "${speakerId}" is not listed in speakerIds.`,
+        );
+      }
+
       return {
         start,
         end,
         text: readString(segment.text, `transcript[${index}].text`),
+        speakerId,
+        speaker,
       };
     }),
   };
@@ -220,6 +301,7 @@ export function validateMicrodose(
 
 export function getAllMicrodoses() {
   const subjectMap = getSubjectMap();
+  const speakerMap = getSpeakerMap();
   const files = fs
     .readdirSync(contentDirectory)
     .filter((file) => file.endsWith(".json"))
@@ -229,7 +311,7 @@ export function getAllMicrodoses() {
     const recordPath = path.join(contentDirectory, file);
     const contents = fs.readFileSync(recordPath, "utf8");
 
-    return validateMicrodose(JSON.parse(contents), subjectMap);
+    return validateMicrodose(JSON.parse(contents), subjectMap, speakerMap);
   });
 }
 

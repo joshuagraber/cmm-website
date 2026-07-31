@@ -108,7 +108,15 @@ try {
   if (args.get("dry-run") === "true") {
     console.log(JSON.stringify(transcript, null, 2));
   } else {
-    record.transcript = transcript;
+    const defaultSpeakerId = args.get("speaker-id");
+
+    if (defaultSpeakerId) {
+      assertRecordSpeakerId(record, defaultSpeakerId);
+    }
+
+    record.transcript = defaultSpeakerId
+      ? transcript.map((segment) => ({ ...segment, speakerId: defaultSpeakerId }))
+      : transcript;
     record.media = {
       ...record.media,
       durationSeconds: Math.ceil(transcript.at(-1).end),
@@ -118,6 +126,14 @@ try {
     console.log(
       `Updated ${path.relative(root, recordPath)} with ${transcript.length} transcript segments.`,
     );
+
+    if (args.get("assign-speakers") === "true") {
+      run(process.execPath, [
+        path.join(root, "scripts", "assign-transcript-speakers.mjs"),
+        "--id",
+        id,
+      ]);
+    }
   }
 } finally {
   fs.rmSync(tempDir, { recursive: true, force: true });
@@ -150,7 +166,7 @@ function required(name) {
 
   if (!value) {
     fail(
-      'Usage: npm run microdoses:transcribe -- --id sizzle-reel-v2 [--model vendor/whisper.cpp/models/ggml-base.en.bin]',
+      'Usage: npm run microdoses:transcribe -- --id gul-dolen-meeting-alex-shulgin [--model vendor/whisper.cpp/models/ggml-base.en.bin]',
     );
   }
 
@@ -205,6 +221,15 @@ function resolveExecutable(value) {
       "Run `npm run microdoses:setup-whisper` or pass `--bin /path/to/whisper-cli`.",
     ].join("\n"),
   );
+}
+
+function assertRecordSpeakerId(record, speakerId) {
+  if (
+    !Array.isArray(record.speakerIds) ||
+    !record.speakerIds.includes(speakerId)
+  ) {
+    fail(`--speaker-id "${speakerId}" must be listed in this microdose speakerIds.`);
+  }
 }
 
 function resolveModelPath(value) {

@@ -1,0 +1,122 @@
+{
+  "id": "gul-dolen-meeting-alex-shulgin",
+  "title": "Gul Dolen Meets Alex Shulgin",
+  "description": "A Cool Molecules Media microdose from the archive.",
+  "speakerLabel": "Gul Dolen",
+  "speakerIds": [
+    "gul-dolen"
+  ],
+  "icon": "molecule",
+  "tags": [
+    "archive",
+    "audio"
+  ],
+  "tabColorPairs": [
+    {
+      "surface": "var(--acid-tab-surface-a)",
+      "icon": "var(--brand-accent-cool)"
+    },
+    {
+      "surface": "var(--acid-tab-surface-b)",
+      "icon": "var(--brand-accent-warm)"
+    }
+  ],
+  "media": {
+    "type": "audio",
+    "src": "/audio/microdoses/gul_dolen-meeting_alex_shulgin.mp3",
+    "durationSeconds": 96
+  },
+  "subjectIds": [],
+  "transcript": [
+    {
+      "start": 0,
+      "end": 7.2,
+      "text": "I was at MIT as a graduate student at the time and we had just moved into a new building and",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 7.2,
+      "end": 12.64,
+      "text": "as part of the opening ceremony for the new building the university asked all of the faculty",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 12.64,
+      "end": 19.68,
+      "text": "members in the Department of Neuroscience to invite you know famous people that they would want to",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 20.4,
+      "end": 27.36,
+      "text": "kind of speak and be part of the opening ceremony and so almost every other faculty member in the",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 27.36,
+      "end": 34,
+      "text": "department invited a Nobel laureate but my faculty advisor Mark Baer invited Alexander",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 34,
+      "end": 42.48,
+      "text": "Shoden and the beauty of this was that you know not to disparage any Nobel laureates but you know",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 42.48,
+      "end": 48.8,
+      "text": "they got up there and they were like talking about whatever they had discovered and trying to extrapolate",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 48.8,
+      "end": 55.2,
+      "text": "it to neuroscience and you know mostly it was kind of like you're not a neuroscientist stick",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 55.2,
+      "end": 63.44,
+      "text": "to what you know right and then Shoden got up on stage and he was just so lucid and you know well",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 63.44,
+      "end": 68.32,
+      "text": "versed and just got up there and was like oh and then we added the methyl group over here and",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 68.32,
+      "end": 73.12,
+      "text": "it changed this property and then it made it this and we added it here and he was just like",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 73.12,
+      "end": 82.72,
+      "text": "the most clear unaddled you know most neuroscience friendly speaker of the whole group and",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 83.36,
+      "end": 88.8,
+      "text": "you know if it left you with any doubts that doing a bunch of psychedelics was going to",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 88.8,
+      "end": 94.24,
+      "text": "impair your ability to speak knowledgeably about neuroscience there were no doubts left I mean he",
+      "speakerId": "gul-dolen"
+    },
+    {
+      "start": 94.24,
+      "end": 95.6,
+      "text": "just was fantastic.",
+      "speakerId": "gul-dolen"
+    }
+  ]
+}

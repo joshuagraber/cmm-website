@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { MicrodoseSheet } from "@/components/microdoses/microdose-sheet";
 import { SiteHeader } from "@/components/cmm/site-header";
-import { getMicrodoseSheetItems } from "@/app/microdoses/mock-microdoses";
 import { getAllMicrodoses } from "@/lib/microdoses";
 
 export const metadata: Metadata = {
@@ -29,7 +28,6 @@ export default async function MicrodosesPage({
   const microdoses = getAllMicrodoses().filter((microdose) =>
     activeTag ? microdose.tags.includes(activeTag) : true,
   );
-  const sheetItems = getMicrodoseSheetItems(microdoses);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -47,7 +45,7 @@ export default async function MicrodosesPage({
             undergrounds.
           </p>
         </div>
-        <MicrodoseSheet microdoses={sheetItems} activeTag={activeTag} />
+        <MicrodoseSheet microdoses={microdoses} activeTag={activeTag} />
       </section>
     </main>
   );

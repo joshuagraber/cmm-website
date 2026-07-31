@@ -1,32 +1,113 @@
 import fs from "node:fs";
 import path from "node:path";
+import readline from "node:readline/promises";
+import { stdin as input, stdout as output } from "node:process";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const contentDir = path.join(root, "content", "microdoses");
+const speakersPath = path.join(root, "content", "speakers.json");
+const args = parseArgs(process.argv.slice(2));
+const rl = readline.createInterface({ input, output });
 
-const args = new Map();
-for (let index = 2; index < process.argv.length; index += 2) {
-  const key = process.argv[index];
-  const value = process.argv[index + 1];
+try {
+  const id = await promptRequired("id", "Microdose id");
+  const destination = path.join(contentDir, `${id}.json`);
 
-  if (!key?.startsWith("--") || value === undefined) {
-    throw new Error(
-      'Usage: npm run microdoses:create -- --id my-id --title "Title" --audio /audio/file.mp3',
+  if (fs.existsSync(destination) && args.get("force") !== "true") {
+    fail(
+      [
+        `Microdose ${id} already exists at ${path.relative(root, destination)}.`,
+        "No changes were made.",
+        "Pass --force true to overwrite the record.",
+      ].join("\n"),
     );
   }
 
-  args.set(key.slice(2), value);
+  const speakers = readSpeakers();
+  const speakerIds = await resolveSpeakerIds(speakers);
+  const derivedSpeakerLabel = speakerIds
+    .map((speakerId) => speakers.find((speaker) => speaker.id === speakerId))
+    .filter(Boolean)
+    .map((speaker) => speaker.name)
+    .join(" + ");
+  const speakerLabel =
+    (args.get("speaker-label") ?? derivedSpeakerLabel) || "CMM Archive";
+
+  const record = {
+    id,
+    title: await promptRequired("title", "Title"),
+    description:
+      args.get("description") ??
+      "Draft description. Replace this before publishing the microdose.",
+    speakerLabel,
+    speakerIds,
+    icon: args.get("icon") ?? "ghost",
+    tags: optionalList("tags"),
+    media: {
+      type: "audio",
+      src: await promptRequired("audio", "Audio path under public"),
+    },
+    tabColorPairs: [
+      {
+        surface: "var(--acid-tab-surface-a)",
+        icon: "var(--brand-accent-cool)",
+      },
+      {
+        surface: "var(--acid-tab-surface-b)",
+        icon: "var(--brand-accent-warm)",
+      },
+    ],
+    subjectIds: optionalList("subject-ids"),
+    transcript: [],
+  };
+
+  fs.mkdirSync(contentDir, { recursive: true });
+  fs.writeFileSync(destination, `${JSON.stringify(record, null, 2)}\n`);
+
+  console.log(`Created ${path.relative(root, destination)}`);
+  console.log("");
+  console.log("Next steps:");
+  console.log(
+    `- npm run microdoses:transcribe -- --id ${id} --assign-speakers`,
+  );
+  console.log(
+    `- npm run microdoses:assign-speakers -- --id ${id} to revisit speaker labels`,
+  );
+} finally {
+  rl.close();
 }
 
-function required(name) {
-  const value = args.get(name);
+function parseArgs(argv) {
+  const parsed = new Map();
 
-  if (!value) {
-    throw new Error(`Missing required --${name} value.`);
+  for (let index = 0; index < argv.length; index += 1) {
+    const key = argv[index];
+
+    if (!key.startsWith("--")) {
+      fail(`Unexpected argument: ${key}`);
+    }
+
+    const next = argv[index + 1];
+    if (next === undefined || next.startsWith("--")) {
+      parsed.set(key.slice(2), "true");
+    } else {
+      parsed.set(key.slice(2), next);
+      index += 1;
+    }
   }
 
-  return value;
+  return parsed;
+}
+
+async function promptRequired(name, label) {
+  const value = args.get(name) ?? (await rl.question(`${label}: `));
+
+  if (!value?.trim()) {
+    fail(`Missing required --${name} value.`);
+  }
+
+  return value.trim();
 }
 
 function optionalList(name) {
@@ -40,59 +121,111 @@ function optionalList(name) {
     : [];
 }
 
-const id = required("id");
-const destination = path.join(contentDir, `${id}.json`);
+function readSpeakers() {
+  if (!fs.existsSync(speakersPath)) {
+    fs.writeFileSync(speakersPath, "[]\n");
+  }
 
-if (fs.existsSync(destination) && args.get("force") !== "true") {
-  throw new Error(
-    `Microdose ${id} already exists. Pass --force true to overwrite it.`,
-  );
+  const speakers = JSON.parse(fs.readFileSync(speakersPath, "utf8"));
+
+  if (!Array.isArray(speakers)) {
+    fail("content/speakers.json must be an array.");
+  }
+
+  return speakers;
 }
 
-const record = {
-  id,
-  title: required("title"),
-  description:
-    args.get("description") ??
-    "Draft description. Replace this before publishing the microdose.",
-  speakerLabel: args.get("speaker") ?? "CMM Archive",
-  icon: args.get("icon") ?? "ghost",
-  tags: optionalList("tags"),
-  media: {
-    type: "audio",
-    src: required("audio"),
-  },
-  tabColorPairs: [
-    {
-      surface: "var(--acid-tab-surface-a)",
-      icon: "var(--brand-accent-cool)",
-    },
-  ],
-  subjectIds: optionalList("subject-ids"),
-  transcript: [
-    {
-      start: 0,
-      end: 10,
-      text:
-        args.get("transcript-placeholder") ??
-        "Transcript placeholder. Run the local transcription step and replace this segment.",
-    },
-  ],
-};
+async function resolveSpeakerIds(speakers) {
+  const explicitIds = optionalList("speaker-ids");
+  if (explicitIds.length > 0) {
+    assertSpeakerIdsExist(explicitIds, speakers);
+    return explicitIds;
+  }
 
-fs.mkdirSync(contentDir, { recursive: true });
-fs.writeFileSync(destination, `${JSON.stringify(record, null, 2)}\n`);
+  const selectedIds = new Set();
 
-console.log(`Created ${path.relative(root, destination)}`);
-console.log("");
-console.log("Local transcription options that do not require an external API:");
-console.log(
-  "- whisper.cpp: recommended default; offline, fast on Apple Silicon, CLI-friendly.",
-);
-console.log(
-  "- faster-whisper: Python/CTranslate2 option; strong throughput, heavier setup.",
-);
-console.log("");
-console.log(
-  "Next step: generate word or segment timestamps with one of those tools and paste normalized segments into transcript[].",
-);
+  while (true) {
+    console.log("");
+    console.log("Speakers:");
+    if (speakers.length === 0) {
+      console.log("- No speakers yet.");
+    } else {
+      speakers.forEach((speaker, index) => {
+        console.log(`${index + 1}. ${speaker.name} (${speaker.id})`);
+      });
+    }
+
+    const answer = (
+      await rl.question(
+        "Add an existing speaker number/id, type + to add a speaker, or press enter when done: ",
+      )
+    ).trim();
+
+    if (!answer) {
+      break;
+    }
+
+    if (answer === "+") {
+      const speaker = await addSpeaker(speakers);
+      selectedIds.add(speaker.id);
+      continue;
+    }
+
+    const speaker = findSpeaker(answer, speakers);
+    if (!speaker) {
+      console.log(`No speaker found for "${answer}".`);
+      continue;
+    }
+
+    selectedIds.add(speaker.id);
+  }
+
+  return Array.from(selectedIds);
+}
+
+async function addSpeaker(speakers) {
+  const id = (await rl.question("Speaker id: ")).trim();
+  const name = (await rl.question("Speaker name: ")).trim();
+  const role = (await rl.question("Speaker role, optional: ")).trim();
+
+  if (!id || !name) {
+    console.log("Speaker id and name are required.");
+    return addSpeaker(speakers);
+  }
+
+  if (speakers.some((speaker) => speaker.id === id)) {
+    console.log(`Speaker "${id}" already exists.`);
+    return addSpeaker(speakers);
+  }
+
+  const speaker = role ? { id, name, role } : { id, name };
+  speakers.push(speaker);
+  speakers.sort((a, b) => a.id.localeCompare(b.id));
+  fs.writeFileSync(speakersPath, `${JSON.stringify(speakers, null, 2)}\n`);
+  console.log(`Added ${name} (${id}).`);
+
+  return speaker;
+}
+
+function findSpeaker(value, speakers) {
+  const numericIndex = Number(value);
+  if (Number.isInteger(numericIndex) && numericIndex > 0) {
+    return speakers[numericIndex - 1];
+  }
+
+  return speakers.find((speaker) => speaker.id === value);
+}
+
+function assertSpeakerIdsExist(speakerIds, speakers) {
+  const knownSpeakerIds = new Set(speakers.map((speaker) => speaker.id));
+  const missing = speakerIds.filter((speakerId) => !knownSpeakerIds.has(speakerId));
+
+  if (missing.length > 0) {
+    fail(`Unknown speaker id(s): ${missing.join(", ")}`);
+  }
+}
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
