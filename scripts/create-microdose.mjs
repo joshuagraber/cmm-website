@@ -9,6 +9,37 @@ const contentDir = path.join(root, "content", "microdoses");
 const speakersPath = path.join(root, "content", "speakers.json");
 const args = parseArgs(process.argv.slice(2));
 const rl = readline.createInterface({ input, output });
+const supportedIcons = [
+  "archive",
+  "atom",
+  "audio-lines",
+  "beaker",
+  "book-open",
+  "brain",
+  "cassette",
+  "dna",
+  "eye",
+  "flask",
+  "flower",
+  "ghost",
+  "headphones",
+  "library",
+  "mic",
+  "molecule",
+  "notebook",
+  "octopus",
+  "pill",
+  "podcast",
+  "quote",
+  "radio",
+  "scroll",
+  "signal",
+  "sparkles",
+  "telescope",
+  "test-tube",
+  "waves",
+  "zap",
+];
 
 try {
   const id = await promptRequired("id", "Microdose id");
@@ -42,7 +73,7 @@ try {
       "Draft description. Replace this before publishing the microdose.",
     speakerLabel,
     speakerIds,
-    icon: args.get("icon") ?? "ghost",
+    icon: await resolveIcon(),
     tags: optionalList("tags"),
     media: {
       type: "audio",
@@ -108,6 +139,23 @@ async function promptRequired(name, label) {
   }
 
   return value.trim();
+}
+
+async function resolveIcon() {
+  const promptedValue = args.has("icon")
+    ? null
+    : (
+        await rl.question(
+          `Icon id (${supportedIcons.join(", ")}). Default molecule: `,
+        )
+      ).trim();
+  const value = (args.get("icon") ?? promptedValue) || "molecule";
+
+  if (!supportedIcons.includes(value)) {
+    fail(`Unsupported icon "${value}". Use one of: ${supportedIcons.join(", ")}`);
+  }
+
+  return value;
 }
 
 function optionalList(name) {

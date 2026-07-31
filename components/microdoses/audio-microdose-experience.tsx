@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
+import { MarkdownText } from "@/components/cmm/markdown-text";
 import type { Microdose } from "@/lib/microdoses";
 import { cn } from "@/lib/utils";
 
@@ -290,13 +291,18 @@ export function AudioMicrodoseExperience({
           <h2 className="font-serif text-5xl font-black leading-none">Tags</h2>
           <div className="mt-6 flex flex-wrap gap-3">
             {microdose.tags.map((tag) => (
-              <Link
-                key={tag}
-                href={`/microdoses?tags=${encodeURIComponent(tag)}`}
-                className="border-2 border-foreground bg-microdose-detail-chip px-4 py-3 font-bold uppercase underline decoration-2 underline-offset-4 transition-colors hover:bg-cmm-yellow"
+              <span
+                key={tag.value}
+                className="inline-flex flex-wrap items-center gap-2 border-2 border-foreground bg-microdose-detail-chip px-4 py-3 font-bold uppercase"
               >
-                {tag}
-              </Link>
+                <MarkdownText value={tag.label} inline />
+                <Link
+                  href={`/microdoses?tags=${encodeURIComponent(tag.value)}`}
+                  className="underline decoration-2 underline-offset-4 transition-colors hover:text-cmm-coral"
+                >
+                  Filter
+                </Link>
+              </span>
             ))}
           </div>
         </section>

@@ -1,7 +1,36 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export type MicrodoseIcon = "ghost" | "octopus" | "signal" | "molecule";
+export type MicrodoseIcon =
+  | "archive"
+  | "atom"
+  | "audio-lines"
+  | "beaker"
+  | "book-open"
+  | "brain"
+  | "cassette"
+  | "dna"
+  | "eye"
+  | "flask"
+  | "flower"
+  | "ghost"
+  | "headphones"
+  | "library"
+  | "mic"
+  | "molecule"
+  | "notebook"
+  | "octopus"
+  | "pill"
+  | "podcast"
+  | "quote"
+  | "radio"
+  | "scroll"
+  | "signal"
+  | "sparkles"
+  | "telescope"
+  | "test-tube"
+  | "waves"
+  | "zap";
 
 export type MicrodoseSubject = {
   id: string;
@@ -19,6 +48,11 @@ export type MicrodoseSpeaker = {
 export type MicrodoseTabColorPair = {
   surface: string;
   icon: string;
+};
+
+export type MicrodoseTag = {
+  value: string;
+  label: string;
 };
 
 export type TranscriptSegment = {
@@ -41,7 +75,7 @@ export type Microdose = {
   description: string;
   speakerLabel: string;
   icon: MicrodoseIcon;
-  tags: string[];
+  tags: MicrodoseTag[];
   tabColorPairs: MicrodoseTabColorPair[];
   media: AudioMicrodoseMedia;
   speakers: MicrodoseSpeaker[];
@@ -53,10 +87,35 @@ const contentDirectory = path.join(process.cwd(), "content", "microdoses");
 const subjectsPath = path.join(process.cwd(), "content", "subjects.json");
 const speakersPath = path.join(process.cwd(), "content", "speakers.json");
 const iconNames = new Set<MicrodoseIcon>([
+  "archive",
+  "atom",
+  "audio-lines",
+  "beaker",
+  "book-open",
+  "brain",
+  "cassette",
+  "dna",
+  "eye",
+  "flask",
+  "flower",
   "ghost",
-  "octopus",
-  "signal",
+  "headphones",
+  "library",
+  "mic",
   "molecule",
+  "notebook",
+  "octopus",
+  "pill",
+  "podcast",
+  "quote",
+  "radio",
+  "scroll",
+  "signal",
+  "sparkles",
+  "telescope",
+  "test-tube",
+  "waves",
+  "zap",
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -89,6 +148,45 @@ function readStringArray(value: unknown, field: string) {
   }
 
   return value.map((item, index) => readString(item, `${field}[${index}]`));
+}
+
+function readTags(value: unknown) {
+  if (value === undefined) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error("Microdose tags must be an array.");
+  }
+
+  return value.map((tag, index) => {
+    if (typeof tag === "string") {
+      const value = readString(tag, `tags[${index}]`);
+
+      return {
+        value,
+        label: value,
+      };
+    }
+
+    if (!isRecord(tag)) {
+      throw new Error(`Microdose tags[${index}] must be a string or object.`);
+    }
+
+    return {
+      value: readString(tag.value, `tags[${index}].value`),
+      label: readString(tag.label, `tags[${index}].label`),
+    };
+  });
+}
+
+export function stripMarkdown(value: string) {
+  return value
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[`*_~>#-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function validateSubjects(input: unknown) {
@@ -225,7 +323,7 @@ export function validateMicrodose(
     description: readString(input.description, "description"),
     speakerLabel: readString(input.speakerLabel, "speakerLabel"),
     icon: icon as MicrodoseIcon,
-    tags: readStringArray(input.tags ?? [], "tags"),
+    tags: readTags(input.tags),
     tabColorPairs: readTabColorPairs(input.tabColorPairs, "tabColorPairs"),
     media: {
       type: "audio",
@@ -321,6 +419,6 @@ export function getMicrodoseById(id: string) {
 
 export function getMicrodoseTags() {
   return Array.from(
-    new Set(getAllMicrodoses().flatMap((microdose) => microdose.tags)),
+    new Set(getAllMicrodoses().flatMap((microdose) => microdose.tags.map((tag) => tag.value))),
   ).sort();
 }

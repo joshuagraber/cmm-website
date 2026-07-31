@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MarkdownText } from "@/components/cmm/markdown-text";
 import { AudioMicrodoseExperience } from "@/components/microdoses/audio-microdose-experience";
 import { SiteHeader } from "@/components/cmm/site-header";
-import { getAllMicrodoses, getMicrodoseById } from "@/lib/microdoses";
+import {
+  getAllMicrodoses,
+  getMicrodoseById,
+  stripMarkdown,
+} from "@/lib/microdoses";
 
 type MicrodoseDetailPageProps = {
   params: Promise<{
@@ -31,7 +36,7 @@ export async function generateMetadata({
 
   return {
     title: `${microdose.title} | Cool Molecules Media`,
-    description: microdose.description,
+    description: stripMarkdown(microdose.description),
   };
 }
 
@@ -62,9 +67,9 @@ export default async function MicrodoseDetailPage({
           <h1 className="font-serif text-6xl font-black leading-none md:text-8xl">
             {microdose.title}
           </h1>
-          <p className="mt-8 max-w-3xl text-2xl leading-snug">
-            {microdose.description}
-          </p>
+          <div className="mt-8 max-w-3xl text-2xl leading-snug">
+            <MarkdownText value={microdose.description} />
+          </div>
         </div>
 
         {microdose.media.type === "audio" ? (

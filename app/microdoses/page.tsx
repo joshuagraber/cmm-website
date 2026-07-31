@@ -26,7 +26,7 @@ export default async function MicrodosesPage({
   const query = await searchParams;
   const activeTag = getActiveTag(query.tags);
   const microdoses = getAllMicrodoses().filter((microdose) =>
-    activeTag ? microdose.tags.includes(activeTag) : true,
+    activeTag ? microdose.tags.some((tag) => tag.value === activeTag) : true,
   );
 
   return (
