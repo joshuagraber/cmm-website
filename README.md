@@ -48,6 +48,10 @@ CONTACT_TO_EMAIL="hello@coolmolecules.media"
 
 `BREVO_FROM_EMAIL` must be a sender registered and verified in Brevo.
 
+## Microdose Admin
+
+The DB-backed admin CMS setup is documented in `docs/admin-cms.md`.
+
 ## Learn More
 
 This repo is on Next.js 16. Before writing framework code, read the relevant local docs in `node_modules/next/dist/docs/` as noted in `AGENTS.md`.

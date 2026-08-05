@@ -274,11 +274,6 @@ export function AudioMicrodoseExperience({
                 <h3 className="font-serif text-3xl font-black leading-tight">
                   {subject.name}
                 </h3>
-                {subject.role ? (
-                  <p className="mt-1 font-bold uppercase tracking-[0.12em]">
-                    {subject.role}
-                  </p>
-                ) : null}
                 <p className="mt-4 text-lg leading-relaxed">{subject.bio}</p>
               </article>
             ))}

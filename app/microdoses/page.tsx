@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   description: "Short-form audio experiences from Cool Molecules Media.",
 };
 
+export const dynamic = "force-dynamic";
+
 type MicrodosesPageProps = {
   searchParams: Promise<{
     tags?: string | string[];
@@ -25,7 +27,8 @@ export default async function MicrodosesPage({
 }: MicrodosesPageProps) {
   const query = await searchParams;
   const activeTag = getActiveTag(query.tags);
-  const microdoses = getAllMicrodoses().filter((microdose) =>
+  const allMicrodoses = await getAllMicrodoses();
+  const microdoses = allMicrodoses.filter((microdose) =>
     activeTag ? microdose.tags.some((tag) => tag.value === activeTag) : true,
   );
 

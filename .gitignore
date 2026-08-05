@@ -18,9 +18,17 @@
 # next.js
 /.next/
 /out/
+/.vercel-transcription/
 
 # production
 /build
+
+# terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
 
 # misc
 .DS_Store

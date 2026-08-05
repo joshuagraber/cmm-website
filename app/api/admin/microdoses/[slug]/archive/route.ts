@@ -1,0 +1,21 @@
+import { archiveMicrodose } from "@/lib/admin/microdose-repository";
+import { jsonError, requireAdminApi } from "@/lib/admin/api";
+
+type ArchiveRouteContext = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
+
+export async function POST(_request: Request, context: ArchiveRouteContext) {
+  const session = await requireAdminApi();
+
+  if (!session) {
+    return jsonError("Unauthorized", 401);
+  }
+
+  const { slug } = await context.params;
+  await archiveMicrodose(slug);
+
+  return Response.json({ ok: true });
+}

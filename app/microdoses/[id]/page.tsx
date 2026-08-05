@@ -5,7 +5,6 @@ import { MarkdownText } from "@/components/cmm/markdown-text";
 import { AudioMicrodoseExperience } from "@/components/microdoses/audio-microdose-experience";
 import { SiteHeader } from "@/components/cmm/site-header";
 import {
-  getAllMicrodoses,
   getMicrodoseById,
   stripMarkdown,
 } from "@/lib/microdoses";
@@ -16,17 +15,13 @@ type MicrodoseDetailPageProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return getAllMicrodoses().map((microdose) => ({
-    id: microdose.id,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: MicrodoseDetailPageProps): Promise<Metadata> {
   const { id } = await params;
-  const microdose = getMicrodoseById(id);
+  const microdose = await getMicrodoseById(id);
 
   if (!microdose) {
     return {
@@ -44,7 +39,7 @@ export default async function MicrodoseDetailPage({
   params,
 }: MicrodoseDetailPageProps) {
   const { id } = await params;
-  const microdose = getMicrodoseById(id);
+  const microdose = await getMicrodoseById(id);
 
   if (!microdose) {
     notFound();

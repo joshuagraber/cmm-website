@@ -1,48 +1,26 @@
 import fs from "node:fs";
 import path from "node:path";
+import {
+  getPublishedMicrodoseFromDb,
+  getPublishedMicrodosesFromDb,
+} from "@/lib/admin/microdose-repository";
+import { hasDatabase } from "@/lib/db/client";
+import {
+  microdoseIconNames,
+  type MicrodoseIcon,
+} from "@/lib/microdose-constants";
 
-export type MicrodoseIcon =
-  | "archive"
-  | "atom"
-  | "audio-lines"
-  | "beaker"
-  | "book-open"
-  | "brain"
-  | "cassette"
-  | "dna"
-  | "eye"
-  | "flask"
-  | "flower"
-  | "ghost"
-  | "headphones"
-  | "library"
-  | "mic"
-  | "molecule"
-  | "notebook"
-  | "octopus"
-  | "pill"
-  | "podcast"
-  | "quote"
-  | "radio"
-  | "scroll"
-  | "signal"
-  | "sparkles"
-  | "telescope"
-  | "test-tube"
-  | "waves"
-  | "zap";
+export type { MicrodoseIcon };
 
 export type MicrodoseSubject = {
   id: string;
   name: string;
-  role?: string;
   bio: string;
 };
 
 export type MicrodoseSpeaker = {
   id: string;
   name: string;
-  role?: string;
 };
 
 export type MicrodoseTabColorPair = {
@@ -86,37 +64,7 @@ export type Microdose = {
 const contentDirectory = path.join(process.cwd(), "content", "microdoses");
 const subjectsPath = path.join(process.cwd(), "content", "subjects.json");
 const speakersPath = path.join(process.cwd(), "content", "speakers.json");
-const iconNames = new Set<MicrodoseIcon>([
-  "archive",
-  "atom",
-  "audio-lines",
-  "beaker",
-  "book-open",
-  "brain",
-  "cassette",
-  "dna",
-  "eye",
-  "flask",
-  "flower",
-  "ghost",
-  "headphones",
-  "library",
-  "mic",
-  "molecule",
-  "notebook",
-  "octopus",
-  "pill",
-  "podcast",
-  "quote",
-  "radio",
-  "scroll",
-  "signal",
-  "sparkles",
-  "telescope",
-  "test-tube",
-  "waves",
-  "zap",
-]);
+const iconNames = new Set<MicrodoseIcon>(microdoseIconNames);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -202,10 +150,6 @@ function validateSubjects(input: unknown) {
     return {
       id: readString(subject.id, `subjects[${index}].id`),
       name: readString(subject.name, `subjects[${index}].name`),
-      role:
-        subject.role === undefined
-          ? undefined
-          : readString(subject.role, `subjects[${index}].role`),
       bio: readString(subject.bio, `subjects[${index}].bio`),
     };
   });
@@ -235,10 +179,6 @@ function validateSpeakers(input: unknown) {
     return {
       id: readString(speaker.id, `speakers[${index}].id`),
       name: readString(speaker.name, `speakers[${index}].name`),
-      role:
-        speaker.role === undefined
-          ? undefined
-          : readString(speaker.role, `speakers[${index}].role`),
     };
   });
 
@@ -397,7 +337,7 @@ export function validateMicrodose(
   };
 }
 
-export function getAllMicrodoses() {
+function getAllFileMicrodoses() {
   const subjectMap = getSubjectMap();
   const speakerMap = getSpeakerMap();
   const files = fs
@@ -413,12 +353,30 @@ export function getAllMicrodoses() {
   });
 }
 
-export function getMicrodoseById(id: string) {
-  return getAllMicrodoses().find((microdose) => microdose.id === id) ?? null;
+export async function getAllMicrodoses() {
+  if (hasDatabase()) {
+    return getPublishedMicrodosesFromDb();
+  }
+
+  return getAllFileMicrodoses();
 }
 
-export function getMicrodoseTags() {
+export async function getMicrodoseById(id: string) {
+  if (hasDatabase()) {
+    return getPublishedMicrodoseFromDb(id);
+  }
+
+  return getAllFileMicrodoses().find((microdose) => microdose.id === id) ?? null;
+}
+
+export async function getMicrodoseTags() {
+  const microdoses = await getAllMicrodoses();
+
   return Array.from(
-    new Set(getAllMicrodoses().flatMap((microdose) => microdose.tags.map((tag) => tag.value))),
+    new Set(
+      microdoses.flatMap((microdose) =>
+        microdose.tags.map((tag) => tag.value),
+      ),
+    ),
   ).sort();
 }

@@ -232,12 +232,11 @@ async function resolveSpeakerIds(speakers) {
 }
 
 async function addSpeaker(speakers) {
-  const id = (await rl.question("Speaker id: ")).trim();
   const name = (await rl.question("Speaker name: ")).trim();
-  const role = (await rl.question("Speaker role, optional: ")).trim();
+  const id = slugify(name);
 
-  if (!id || !name) {
-    console.log("Speaker id and name are required.");
+  if (!name) {
+    console.log("Speaker name is required.");
     return addSpeaker(speakers);
   }
 
@@ -246,7 +245,7 @@ async function addSpeaker(speakers) {
     return addSpeaker(speakers);
   }
 
-  const speaker = role ? { id, name, role } : { id, name };
+  const speaker = { id, name };
   speakers.push(speaker);
   speakers.sort((a, b) => a.id.localeCompare(b.id));
   fs.writeFileSync(speakersPath, `${JSON.stringify(speakers, null, 2)}\n`);
