@@ -92,7 +92,28 @@ function resolveRuntimePath(value: string) {
 
 function run(command: string, args: string[]) {
   return new Promise<void>((resolve, reject) => {
-    const child = spawn(command, args, { stdio: "inherit" });
+    let output = "";
+    const child = spawn(command, args, {
+      env: {
+        ...process.env,
+        LD_LIBRARY_PATH: [
+          path.dirname(command),
+          process.env.LD_LIBRARY_PATH,
+        ]
+          .filter(Boolean)
+          .join(":"),
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      output += chunk;
+    });
+    child.stderr.on("data", (chunk) => {
+      output += chunk;
+    });
 
     child.on("error", (error) => {
       if ("code" in error && error.code === "ENOENT") {
@@ -110,7 +131,16 @@ function run(command: string, args: string[]) {
       if (code === 0) {
         resolve();
       } else {
-        reject(new Error(`Command failed: ${command} ${args.join(" ")}`));
+        reject(
+          new Error(
+            [
+              `Command failed with exit code ${code}: ${command} ${args.join(" ")}`,
+              output.trim(),
+            ]
+              .filter(Boolean)
+              .join("\n"),
+          ),
+        );
       }
     });
   });
