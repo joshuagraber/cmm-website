@@ -18,7 +18,7 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
     (process.env.ENABLE_VERCEL_TRANSCRIPTION === "true"
       ? ".vercel-transcription/bin/ffmpeg"
       : undefined) ??
-    ffmpegStatic ??
+    envValue(ffmpegStatic ?? undefined) ??
     "ffmpeg";
 
   if (!whisperBin || !whisperModel) {
@@ -27,6 +27,7 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
 
   const resolvedWhisperBin = resolveRuntimePath(whisperBin);
   const resolvedWhisperModel = resolveRuntimePath(whisperModel);
+  const resolvedFfmpegBin = resolveRuntimePath(ffmpegBin);
 
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cmm-transcribe-"));
   const inputPath = path.join(tempDir, "source-audio");
@@ -36,7 +37,7 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
 
   try {
     await fs.writeFile(inputPath, await downloadAudioObject(key));
-    await run(ffmpegBin, [
+    await run(resolvedFfmpegBin, [
       "-nostdin",
       "-y",
       "-i",
