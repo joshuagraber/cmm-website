@@ -26,6 +26,7 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
   const resolvedWhisperBin = resolveRuntimePath(whisperBin);
   const resolvedWhisperModel = resolveRuntimePath(whisperModel);
   const resolvedFfmpegBin = resolveRuntimePath(ffmpegBin);
+  await assertBundledRuntimeDependencies(resolvedWhisperBin);
 
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cmm-transcribe-"));
   const inputPath = path.join(tempDir, "source-audio");
@@ -64,6 +65,45 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
     return normalizeTranscript(output);
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
+  }
+}
+
+async function assertBundledRuntimeDependencies(whisperBin: string) {
+  if (!whisperBin.includes("vercel-transcription")) {
+    return;
+  }
+
+  const binDir = path.dirname(whisperBin);
+  const libgompPath = path.join(binDir, "libgomp.so.1");
+
+  if (await fileExists(libgompPath)) {
+    return;
+  }
+
+  const bundledFiles = await directoryListing(binDir);
+
+  throw new Error(
+    [
+      `Missing bundled shared library: ${libgompPath}`,
+      `Bundled bin files: ${bundledFiles.join(", ") || "none"}`,
+    ].join("\n"),
+  );
+}
+
+async function fileExists(filePath: string) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function directoryListing(directoryPath: string) {
+  try {
+    return (await fs.readdir(directoryPath)).sort();
+  } catch {
+    return [];
   }
 }
 

@@ -57,6 +57,7 @@ console.log("Vercel transcription assets ready:");
 console.log(`WHISPER_CPP_BIN=${path.relative(root, whisperBinPath)}`);
 console.log(`WHISPER_CPP_MODEL=${path.relative(root, modelPath)}`);
 console.log(`FFMPEG_BIN=${path.relative(root, ffmpegBinPath)}`);
+console.log(`Bundled binaries: ${(await fs.readdir(binDir)).sort().join(", ")}`);
 
 async function exists(filePath) {
   try {
@@ -143,6 +144,9 @@ async function copyWhisperSharedLibraries() {
 
     await fs.copyFile(sourcePath, outputPath);
     await fs.chmod(outputPath, 0o755);
+    console.log(
+      `Copied ${libraryName} from ${sourcePath} to ${path.relative(root, outputPath)}`,
+    );
   }
 }
 
