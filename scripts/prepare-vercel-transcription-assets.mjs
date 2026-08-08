@@ -4,15 +4,18 @@ import { spawnSync } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const require = createRequire(import.meta.url);
 const enabled = process.env.ENABLE_VERCEL_TRANSCRIPTION === "true";
 const assetDir = path.join(root, ".vercel-transcription");
 const binDir = path.join(assetDir, "bin");
 const modelDir = path.join(assetDir, "models");
 const archivePath = path.join(assetDir, "whisper-cli-archive");
 const whisperBinPath = path.join(binDir, "whisper-cli");
+const ffmpegBinPath = path.join(binDir, "ffmpeg");
 const modelName = process.env.VERCEL_WHISPER_MODEL_NAME ?? "tiny.en";
 const modelFile = process.env.VERCEL_WHISPER_MODEL_FILE ?? `ggml-${modelName}.bin`;
 const modelPath = path.join(modelDir, modelFile);
@@ -46,9 +49,12 @@ if (!(await exists(modelPath))) {
   console.log(`Using existing ${path.relative(root, modelPath)}`);
 }
 
+await copyFfmpeg();
+
 console.log("Vercel transcription assets ready:");
 console.log(`WHISPER_CPP_BIN=${path.relative(root, whisperBinPath)}`);
 console.log(`WHISPER_CPP_MODEL=${path.relative(root, modelPath)}`);
+console.log(`FFMPEG_BIN=${path.relative(root, ffmpegBinPath)}`);
 
 async function exists(filePath) {
   try {
@@ -104,4 +110,15 @@ async function extractWhisperCli(inputPath) {
   if (move.status !== 0) {
     throw new Error("Failed to copy whisper.cpp assets into the transcription asset directory.");
   }
+}
+
+async function copyFfmpeg() {
+  const ffmpegStaticPath = require("ffmpeg-static");
+
+  if (!ffmpegStaticPath) {
+    throw new Error("ffmpeg-static did not resolve to an executable path.");
+  }
+
+  await fs.copyFile(ffmpegStaticPath, ffmpegBinPath);
+  await fs.chmod(ffmpegBinPath, 0o755);
 }

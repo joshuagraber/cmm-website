@@ -13,7 +13,13 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
   const whisperModel =
     envValue(process.env.WHISPER_CPP_MODEL) ??
     ".vercel-transcription/models/ggml-tiny.en.bin";
-  const ffmpegBin = envValue(process.env.FFMPEG_BIN) ?? ffmpegStatic ?? "ffmpeg";
+  const ffmpegBin =
+    envValue(process.env.FFMPEG_BIN) ??
+    (process.env.ENABLE_VERCEL_TRANSCRIPTION === "true"
+      ? ".vercel-transcription/bin/ffmpeg"
+      : undefined) ??
+    ffmpegStatic ??
+    "ffmpeg";
 
   if (!whisperBin || !whisperModel) {
     throw new Error("WHISPER_CPP_BIN and WHISPER_CPP_MODEL are required.");
