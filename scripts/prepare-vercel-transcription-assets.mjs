@@ -50,6 +50,7 @@ if (!(await exists(modelPath))) {
 }
 
 await copyFfmpeg();
+await cleanupTemporaryAssets();
 
 console.log("Vercel transcription assets ready:");
 console.log(`WHISPER_CPP_BIN=${path.relative(root, whisperBinPath)}`);
@@ -110,6 +111,9 @@ async function extractWhisperCli(inputPath) {
   if (move.status !== 0) {
     throw new Error("Failed to copy whisper.cpp assets into the transcription asset directory.");
   }
+
+  await fs.rm(archivePath, { force: true });
+  await fs.rm(extractDir, { recursive: true, force: true });
 }
 
 async function copyFfmpeg() {
@@ -121,4 +125,9 @@ async function copyFfmpeg() {
 
   await fs.copyFile(ffmpegStaticPath, ffmpegBinPath);
   await fs.chmod(ffmpegBinPath, 0o755);
+}
+
+async function cleanupTemporaryAssets() {
+  await fs.rm(archivePath, { force: true });
+  await fs.rm(path.join(assetDir, "extract"), { recursive: true, force: true });
 }

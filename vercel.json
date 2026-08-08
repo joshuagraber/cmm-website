@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "app/api/queues/transcribe-microdose/route.ts": {
-      "includeFiles": "vercel-transcription/**/*",
+      "includeFiles": "vercel-transcription/{bin,models}/**/*",
       "experimentalTriggers": [
         {
           "type": "queue/v2beta",
