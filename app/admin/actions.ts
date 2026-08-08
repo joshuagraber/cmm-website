@@ -61,10 +61,26 @@ export async function archiveMicrodoseAction(slug: string) {
 
 export async function upsertPersonAction(formData: FormData) {
   await requireAdmin();
+  const returnTo = normalizeAdminReturnPath(optionalStringField(formData, "returnTo"));
+
   await upsertPerson({
     id: optionalStringField(formData, "id"),
     name: stringField(formData, "name"),
     bio: stringField(formData, "bio"),
   });
-  redirect("/admin/people");
+
+  revalidatePath("/admin/people");
+  if (returnTo) {
+    revalidatePath(returnTo);
+  }
+
+  redirect(returnTo ?? "/admin/people");
+}
+
+function normalizeAdminReturnPath(value: string | undefined) {
+  if (!value?.startsWith("/admin/") || value.startsWith("//")) {
+    return undefined;
+  }
+
+  return value;
 }

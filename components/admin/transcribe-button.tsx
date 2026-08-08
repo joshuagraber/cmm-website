@@ -5,7 +5,13 @@ import { AudioLines } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export function TranscribeButton({ slug }: { slug: string }) {
+export function TranscribeButton({
+  slug,
+  onBeforeTranscribe,
+}: {
+  slug: string;
+  onBeforeTranscribe?: () => Promise<void> | void;
+}) {
   const router = useRouter();
   const refreshTimersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
   const [message, setMessage] = useState("");
@@ -37,6 +43,8 @@ export function TranscribeButton({ slug }: { slug: string }) {
     setMessage("");
 
     try {
+      await onBeforeTranscribe?.();
+
       const response = await fetch(`/api/admin/microdoses/${slug}/transcribe`, {
         method: "POST",
       });

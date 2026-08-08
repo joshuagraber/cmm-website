@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TranscribeButton } from "@/components/admin/transcribe-button";
 import { Button } from "@/components/ui/button";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 type MicrodoseActionsProps = {
-  slug: string;
   isPublished: boolean;
   hasStagedChanges: boolean;
   publishAction: (formData: FormData) => void | Promise<void>;
@@ -16,7 +14,6 @@ type MicrodoseActionsProps = {
 };
 
 export function MicrodoseActions({
-  slug,
   isPublished,
   hasStagedChanges,
   publishAction,
@@ -106,7 +103,6 @@ export function MicrodoseActions({
             {publishLabel}
           </Button>
         </form>
-        <TranscribeButton slug={slug} />
         {isPublished ? (
           <form action={unpublishAction}>
             <Button type="submit">Unpublish</Button>

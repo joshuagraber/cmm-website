@@ -487,6 +487,17 @@ export async function getTranscriptionJobForProcessing(jobId: string) {
   return job ?? null;
 }
 
+export async function getRevisionSpeakerIds(revisionId: string) {
+  requireDatabase();
+
+  const rows = await getDb()
+    .select({ speakerId: microdoseRevisionSpeakers.speakerId })
+    .from(microdoseRevisionSpeakers)
+    .where(eq(microdoseRevisionSpeakers.revisionId, revisionId));
+
+  return rows.map((row) => row.speakerId);
+}
+
 export async function markTranscriptionJobRunning(jobId: string) {
   requireDatabase();
   await getDb()
@@ -532,6 +543,8 @@ export async function replaceRevisionTranscript(
   const db = getDb();
 
   await db.transaction(async (tx) => {
+    const now = new Date();
+
     await tx
       .delete(transcriptSegments)
       .where(eq(transcriptSegments.revisionId, revisionId));
@@ -548,6 +561,11 @@ export async function replaceRevisionTranscript(
         })),
       );
     }
+
+    await tx
+      .update(microdoseRevisions)
+      .set({ updatedAt: now })
+      .where(eq(microdoseRevisions.id, revisionId));
   });
 }
 

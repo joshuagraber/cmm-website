@@ -1,14 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Plus, Scissors, Trash2, Upload } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { TranscribeButton } from "@/components/admin/transcribe-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { serializeTags } from "@/lib/admin/forms";
+import { parseTags, serializeTags } from "@/lib/admin/forms";
 import {
   microdoseIconNames,
   type MicrodoseIcon,
@@ -55,6 +63,7 @@ type MicrodoseEditorProps = {
   formId?: string;
   savedStateKey?: string;
   autosaveSlug?: string;
+  draftStorageKey?: string;
   hideSubmitButton?: boolean;
   action: (formData: FormData) => void | Promise<void>;
 };
@@ -68,10 +77,12 @@ export function MicrodoseEditor({
   formId,
   savedStateKey,
   autosaveSlug,
+  draftStorageKey,
   hideSubmitButton = false,
   action,
 }: MicrodoseEditorProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const formRef = useRef<HTMLFormElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const savedFormSnapshotRef = useRef("");
@@ -92,12 +103,14 @@ export function MicrodoseEditor({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [selectedTags, setSelectedTags] = useState(value.tags);
-  const [newTags, setNewTags] = useState("");
+  const [newTagInput, setNewTagInput] = useState("");
+  const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(value.speakerIds);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState(value.subjectIds);
   const [segments, setSegments] = useState(value.transcript);
   const tagOptions = useMemo(() => {
     const seen = new Set<string>();
 
-    return [...value.tags, ...existingTags].filter((tag) => {
+    return [...selectedTags, ...existingTags].filter((tag) => {
       const normalizedValue = tag.value.toLowerCase();
 
       if (seen.has(normalizedValue)) {
@@ -107,12 +120,11 @@ export function MicrodoseEditor({
       seen.add(normalizedValue);
       return true;
     });
-  }, [existingTags, value.tags]);
-  const tagsJson = useMemo(
-    () => serializeTags([...selectedTags, ...parseInlineTags(newTags)]),
-    [newTags, selectedTags],
-  );
+  }, [existingTags, selectedTags]);
+  const tagsJson = useMemo(() => serializeTags(selectedTags), [selectedTags]);
   const transcriptJson = useMemo(() => JSON.stringify(segments), [segments]);
+  const onlySelectedSpeakerId =
+    selectedSpeakerIds.length === 1 ? selectedSpeakerIds[0] : undefined;
   const availableAudioAssets = useMemo(() => {
     const serverIds = new Set(audioAssets.map((asset) => asset.id));
 
@@ -133,16 +145,59 @@ export function MicrodoseEditor({
   }, [savedStateKey]);
 
   useEffect(() => {
+    if (!draftStorageKey) {
+      return;
+    }
+
+    const storedDraft = window.sessionStorage.getItem(draftStorageKey);
+
+    if (!storedDraft) {
+      return;
+    }
+
+    try {
+      restoreDraft(JSON.parse(storedDraft), formRef.current, {
+        setAudioAssetId,
+        setSelectedTags,
+        setSelectedSpeakerIds,
+        setSelectedSubjectIds,
+        setSegments,
+        setNewTagInput,
+      });
+      window.setTimeout(() => {
+        savedFormSnapshotRef.current = getFormSnapshot(formRef.current);
+        scheduleDirtyCheck();
+      }, 0);
+    } catch {
+      window.sessionStorage.removeItem(draftStorageKey);
+    }
+    // Restore must run once for this editor instance.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftStorageKey]);
+
+  useEffect(() => {
     scheduleDirtyCheck();
+
+    if (draftStorageKey) {
+      window.setTimeout(() => persistDraft(draftStorageKey, formRef.current), 0);
+    }
 
     return () => {
       if (dirtyFrameRef.current !== null) {
         cancelAnimationFrame(dirtyFrameRef.current);
       }
     };
-    // This effect intentionally tracks the derived hidden form values.
+    // This effect intentionally tracks form state that is mirrored into hidden form values.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioAssetId, tagsJson, transcriptJson]);
+  }, [
+    audioAssetId,
+    draftStorageKey,
+    newTagInput,
+    selectedSpeakerIds,
+    selectedSubjectIds,
+    tagsJson,
+    transcriptJson,
+  ]);
 
   useEffect(() => {
     if (!autosaveSlug) {
@@ -259,6 +314,7 @@ export function MicrodoseEditor({
         start,
         end: start + 5,
         text: "",
+        speakerId: onlySelectedSpeakerId,
       },
     ]);
   }
@@ -327,7 +383,10 @@ export function MicrodoseEditor({
     }, 1200);
   }
 
-  async function autosaveDraft() {
+  async function autosaveDraft({
+    force = false,
+    throwOnError = false,
+  } = {}) {
     const form = formRef.current;
     const currentSlug = autosaveSlugRef.current;
 
@@ -342,7 +401,7 @@ export function MicrodoseEditor({
 
     const snapshotAtSaveStart = getFormSnapshot(form);
 
-    if (snapshotAtSaveStart === savedFormSnapshotRef.current) {
+    if (!force && snapshotAtSaveStart === savedFormSnapshotRef.current) {
       beforeUnloadStateRef.current = {
         dirty: false,
         saving: false,
@@ -394,16 +453,22 @@ export function MicrodoseEditor({
         scheduleAutosave();
       }
     } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Autosave failed. Try editing again or reload the page.";
+
       autosaveInFlightRef.current = false;
       beforeUnloadStateRef.current = { dirty: true, saving: false, failed: true };
       dispatchEditorState({
         dirty: true,
         saveStatus: "error",
-        error:
-          error instanceof Error
-            ? error.message
-            : "Autosave failed. Try editing again or reload the page.",
+        error: message,
       });
+
+      if (throwOnError) {
+        throw new Error(message);
+      }
     }
   }
 
@@ -423,13 +488,54 @@ export function MicrodoseEditor({
     });
   }
 
+  function addTagsFromInput() {
+    const tags = parseInlineTags(newTagInput);
+
+    if (tags.length === 0) {
+      return;
+    }
+
+    setSelectedTags((current) => mergeTags(current, tags));
+    setNewTagInput("");
+  }
+
+  function toggleSelectedId(
+    id: string,
+    setter: Dispatch<SetStateAction<string[]>>,
+  ) {
+    setter((current) =>
+      current.includes(id)
+        ? current.filter((currentId) => currentId !== id)
+        : [...current, id],
+    );
+  }
+
+  async function saveBeforeTranscribe() {
+    await autosaveDraft({ force: true, throwOnError: true });
+  }
+
+  function handleFormInput() {
+    scheduleDirtyCheck();
+
+    if (draftStorageKey) {
+      window.setTimeout(() => persistDraft(draftStorageKey, formRef.current), 0);
+    }
+  }
+
+  function handleSubmit() {
+    if (draftStorageKey) {
+      window.sessionStorage.removeItem(draftStorageKey);
+    }
+  }
+
   return (
     <form
       ref={formRef}
       id={formId}
       action={action}
-      onInput={scheduleDirtyCheck}
-      onChange={scheduleDirtyCheck}
+      onInput={handleFormInput}
+      onChange={handleFormInput}
+      onSubmit={handleSubmit}
       className="grid gap-8"
     >
       <input name="audioAssetId" type="hidden" value={audioAssetId} />
@@ -469,7 +575,8 @@ export function MicrodoseEditor({
                 ))}
               </select>
               <Link
-                href="/admin/people"
+                href={`/admin/people?returnTo=${encodeURIComponent(pathname)}`}
+                prefetch={false}
                 className="w-fit text-sm font-bold uppercase tracking-[0.08em] underline decoration-2 underline-offset-4"
               >
                 Add speaker
@@ -531,10 +638,27 @@ export function MicrodoseEditor({
             ) : null}
             <Input
               id="newTags"
-              value={newTags}
-              onChange={(event) => setNewTags(event.target.value)}
-              placeholder="Add tags separated by commas"
+              name="newTagsDraft"
+              value={newTagInput}
+              onChange={(event) => setNewTagInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addTagsFromInput();
+                }
+              }}
+              placeholder="New tag"
             />
+            <Button
+              type="button"
+              size="sm"
+              className="w-fit"
+              onClick={addTagsFromInput}
+              disabled={parseInlineTags(newTagInput).length === 0}
+            >
+              <Plus aria-hidden="true" className="mr-2 size-4" />
+              Add tag
+            </Button>
           </div>
         </div>
       </section>
@@ -586,24 +710,33 @@ export function MicrodoseEditor({
             name="speakerIds"
             title="Featured speakers"
             options={people}
-            selectedIds={value.speakerIds}
+            selectedIds={selectedSpeakerIds}
+            onToggle={(id) => toggleSelectedId(id, setSelectedSpeakerIds)}
           />
           <CheckboxGroup
             name="subjectIds"
             title="People mentioned"
             options={people}
-            selectedIds={value.subjectIds}
+            selectedIds={selectedSubjectIds}
+            onToggle={(id) => toggleSelectedId(id, setSelectedSubjectIds)}
           />
         </div>
       </section>
 
+      {autosaveSlug ? (
       <section className="grid gap-5 border-[6px] border-foreground p-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="font-serif text-4xl font-black">Transcript</h2>
-          <Button type="button" onClick={addSegment}>
-            <Plus aria-hidden="true" className="mr-2 size-4" />
-            Add chunk
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <TranscribeButton
+              slug={autosaveSlug}
+              onBeforeTranscribe={saveBeforeTranscribe}
+            />
+            <Button type="button" onClick={addSegment}>
+              <Plus aria-hidden="true" className="mr-2 size-4" />
+              Add chunk
+            </Button>
+          </div>
         </div>
         <div className="grid gap-3">
           {segments.map((segment, index) => (
@@ -678,6 +811,7 @@ export function MicrodoseEditor({
           ))}
         </div>
       </section>
+      ) : null}
 
       {hideSubmitButton ? null : (
         <Button type="submit" variant="primary" className="w-fit">
@@ -716,6 +850,7 @@ function formDataToPayload(formData: FormData) {
     audioAssetId: stringValue(formData.get("audioAssetId")),
     tags: stringValue(formData.get("tags")),
     transcriptJson: stringValue(formData.get("transcriptJson")),
+    newTagsDraft: stringValue(formData.get("newTagsDraft")),
     speakerIds: stringValues(formData.getAll("speakerIds")),
     subjectIds: stringValues(formData.getAll("subjectIds")),
   };
@@ -778,16 +913,110 @@ function parseInlineTags(value: string): TagOption[] {
     .map((part) => ({ value: part, label: part }));
 }
 
+function mergeTags(current: TagOption[], next: TagOption[]) {
+  const seen = new Set(current.map((tag) => tag.value.toLowerCase()));
+  const merged = [...current];
+
+  for (const tag of next) {
+    const normalizedValue = tag.value.toLowerCase();
+
+    if (!seen.has(normalizedValue)) {
+      seen.add(normalizedValue);
+      merged.push(tag);
+    }
+  }
+
+  return merged;
+}
+
+function persistDraft(storageKey: string, form: HTMLFormElement | null) {
+  if (!form) {
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    storageKey,
+    JSON.stringify(formDataToPayload(new FormData(form))),
+  );
+}
+
+function restoreDraft(
+  payload: unknown,
+  form: HTMLFormElement | null,
+  setters: {
+    setAudioAssetId: Dispatch<SetStateAction<string>>;
+    setSelectedTags: Dispatch<SetStateAction<TagOption[]>>;
+    setSelectedSpeakerIds: Dispatch<SetStateAction<string[]>>;
+    setSelectedSubjectIds: Dispatch<SetStateAction<string[]>>;
+    setSegments: Dispatch<SetStateAction<TranscriptSegment[]>>;
+    setNewTagInput: Dispatch<SetStateAction<string>>;
+  },
+) {
+  if (!form || typeof payload !== "object" || payload === null) {
+    return;
+  }
+
+  const draft = payload as Record<string, unknown>;
+  setInputValue(form, "slug", draft.slug);
+  setInputValue(form, "title", draft.title);
+  setInputValue(form, "description", draft.description);
+  setInputValue(form, "speakerLabel", draft.speakerLabel);
+  setInputValue(form, "icon", draft.icon);
+
+  setters.setAudioAssetId(typeof draft.audioAssetId === "string" ? draft.audioAssetId : "");
+  setters.setSelectedTags(
+    typeof draft.tags === "string" ? parseTags(draft.tags) : [],
+  );
+  setters.setSelectedSpeakerIds(stringArrayValue(draft.speakerIds));
+  setters.setSelectedSubjectIds(stringArrayValue(draft.subjectIds));
+  setters.setNewTagInput(
+    typeof draft.newTagsDraft === "string" ? draft.newTagsDraft : "",
+  );
+
+  if (typeof draft.transcriptJson === "string" && draft.transcriptJson.trim()) {
+    const transcript = JSON.parse(draft.transcriptJson);
+
+    if (Array.isArray(transcript)) {
+      setters.setSegments(transcript as TranscriptSegment[]);
+    }
+  }
+}
+
+function setInputValue(
+  form: HTMLFormElement,
+  name: string,
+  value: unknown,
+) {
+  const field = form.elements.namedItem(name);
+
+  if (
+    typeof value === "string" &&
+    (field instanceof HTMLInputElement ||
+      field instanceof HTMLTextAreaElement ||
+      field instanceof HTMLSelectElement)
+  ) {
+    field.value = value;
+  }
+}
+
+function stringArrayValue(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
 function CheckboxGroup({
   name,
   title,
   options,
   selectedIds,
+  onToggle,
 }: {
   name: string;
   title: string;
   options: PersonOption[];
   selectedIds: string[];
+  onToggle: (id: string) => void;
 }) {
   return (
     <fieldset className="border-2 border-foreground p-4">
@@ -799,7 +1028,8 @@ function CheckboxGroup({
               name={name}
               type="checkbox"
               value={option.id}
-              defaultChecked={selectedIds.includes(option.id)}
+              checked={selectedIds.includes(option.id)}
+              onChange={() => onToggle(option.id)}
             />
             <span>{option.name}</span>
           </label>

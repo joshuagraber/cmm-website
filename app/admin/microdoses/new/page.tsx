@@ -33,6 +33,7 @@ export default async function NewMicrodosePage() {
         people={people}
         audioAssets={audioAssets}
         existingTags={existingTags}
+        draftStorageKey="cmm.admin.microdose.new"
         value={{
           slug: "",
           title: "",

@@ -1,4 +1,5 @@
 import {
+  getRevisionSpeakerIds,
   getTranscriptionJobForProcessing,
   markTranscriptionJobComplete,
   markTranscriptionJobFailed,
@@ -21,10 +22,19 @@ export async function processTranscriptionJob(jobId: string) {
   try {
     await markTranscriptionJobRunning(jobId);
     const transcript = await transcribeS3Audio(job.s3Key);
-    await replaceRevisionTranscript(job.revisionId, transcript);
+    const speakerIds = await getRevisionSpeakerIds(job.revisionId);
+    const assignedTranscript =
+      speakerIds.length === 1
+        ? transcript.map((segment) => ({
+            ...segment,
+            speakerId: segment.speakerId ?? speakerIds[0],
+          }))
+        : transcript;
+
+    await replaceRevisionTranscript(job.revisionId, assignedTranscript);
     await markTranscriptionJobComplete(jobId);
 
-    return { skipped: false, segments: transcript.length };
+    return { skipped: false, segments: assignedTranscript.length };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Transcription failed.";

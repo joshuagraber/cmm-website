@@ -6,7 +6,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { databaseReady, requireAdminPage } from "@/lib/admin/guard";
 import { listPeople } from "@/lib/admin/microdose-repository";
 
-export default async function AdminPeoplePage() {
+type AdminPeoplePageProps = {
+  searchParams: Promise<{
+    returnTo?: string;
+  }>;
+};
+
+export default async function AdminPeoplePage({
+  searchParams,
+}: AdminPeoplePageProps) {
   await requireAdminPage("/admin/people");
 
   if (!databaseReady()) {
@@ -14,6 +22,8 @@ export default async function AdminPeoplePage() {
   }
 
   const people = await listPeople();
+  const { returnTo } = await searchParams;
+  const safeReturnTo = normalizeAdminReturnPath(returnTo);
 
   return (
     <section className="px-site-x py-section-y">
@@ -23,7 +33,11 @@ export default async function AdminPeoplePage() {
       </div>
       <section className="grid gap-5 border-[6px] border-foreground p-5">
         <h2 className="font-serif text-4xl font-black">Add person</h2>
-        <PersonForm action={upsertPersonAction} submitLabel="Save person" />
+        <PersonForm
+          action={upsertPersonAction}
+          returnTo={safeReturnTo}
+          submitLabel="Save person"
+        />
         <div className="grid gap-3">
           {people.map((person) => (
             <article key={person.id} className="border-2 border-foreground p-4">
@@ -41,6 +55,7 @@ export default async function AdminPeoplePage() {
                   <div className="mt-4">
                     <PersonForm
                       action={upsertPersonAction}
+                      returnTo={safeReturnTo}
                       person={{
                         id: person.id,
                         name: person.name,
@@ -68,10 +83,12 @@ export default async function AdminPeoplePage() {
 function PersonForm({
   action,
   person,
+  returnTo,
   submitLabel,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   person?: { id: string; name: string; bio: string };
+  returnTo?: string;
   submitLabel: string;
 }) {
   const inputId = person ? `person-${person.id}` : "person";
@@ -79,6 +96,7 @@ function PersonForm({
   return (
     <form action={action} className="grid gap-4 border-2 border-foreground p-4">
       {person ? <input type="hidden" name="id" value={person.id} /> : null}
+      {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
       <div>
         <Label htmlFor={`${inputId}-name`}>Name</Label>
         <Input
@@ -102,4 +120,12 @@ function PersonForm({
       </Button>
     </form>
   );
+}
+
+function normalizeAdminReturnPath(value: string | undefined) {
+  if (!value?.startsWith("/admin/") || value.startsWith("//")) {
+    return undefined;
+  }
+
+  return value;
 }
