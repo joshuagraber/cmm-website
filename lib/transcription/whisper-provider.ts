@@ -2,7 +2,6 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import ffmpegStatic from "ffmpeg-static";
 import type { TranscriptSegment } from "@/lib/microdoses";
 import { downloadAudioObject } from "@/lib/storage";
 
@@ -18,7 +17,6 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
     (process.env.ENABLE_VERCEL_TRANSCRIPTION === "true"
       ? "vercel-transcription/bin/ffmpeg"
       : undefined) ??
-    envValue(ffmpegStatic ?? undefined) ??
     "ffmpeg";
 
   if (!whisperBin || !whisperModel) {
