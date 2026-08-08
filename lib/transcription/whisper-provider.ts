@@ -8,11 +8,12 @@ import { downloadAudioObject } from "@/lib/storage";
 
 export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[]> {
   const whisperBin =
-    process.env.WHISPER_CPP_BIN ?? ".vercel-transcription/bin/whisper-cli";
+    envValue(process.env.WHISPER_CPP_BIN) ??
+    ".vercel-transcription/bin/whisper-cli";
   const whisperModel =
-    process.env.WHISPER_CPP_MODEL ??
+    envValue(process.env.WHISPER_CPP_MODEL) ??
     ".vercel-transcription/models/ggml-tiny.en.bin";
-  const ffmpegBin = process.env.FFMPEG_BIN ?? ffmpegStatic ?? "ffmpeg";
+  const ffmpegBin = envValue(process.env.FFMPEG_BIN) ?? ffmpegStatic ?? "ffmpeg";
 
   if (!whisperBin || !whisperModel) {
     throw new Error("WHISPER_CPP_BIN and WHISPER_CPP_MODEL are required.");
@@ -59,6 +60,10 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
   }
+}
+
+function envValue(value: string | undefined) {
+  return value?.trim() || undefined;
 }
 
 function resolveRuntimePath(value: string) {
