@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  outputFileTracingIncludes: {
+    "/api/queues/transcribe-microdose": ["./vercel-transcription/**/*"],
+  },
 };
 
 export default nextConfig;
