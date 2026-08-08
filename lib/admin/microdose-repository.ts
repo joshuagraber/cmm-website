@@ -12,6 +12,7 @@ import {
   transcriptionJobs,
 } from "@/lib/db/schema";
 import { createAudioPlaybackUrl } from "@/lib/storage";
+import { microdoseTabColorPairs } from "@/lib/microdose-constants";
 import type {
   Microdose,
   MicrodoseIcon,
@@ -619,16 +620,7 @@ async function hydrateMicrodose(row: {
     speakerLabel: row.speakerLabel,
     icon: row.icon as MicrodoseIcon,
     tags: tagRows.map((tag) => ({ value: tag.value, label: tag.labelMarkdown })),
-    tabColorPairs: [
-      {
-        surface: "var(--acid-tab-surface-a)",
-        icon: "var(--brand-accent-cool)",
-      },
-      {
-        surface: "var(--acid-tab-surface-b)",
-        icon: "var(--brand-accent-warm)",
-      },
-    ],
+    tabColorPairs: [...microdoseTabColorPairs],
     media: {
       type: "audio",
       src: row.audioPublicPath

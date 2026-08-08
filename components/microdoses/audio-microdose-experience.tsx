@@ -81,6 +81,14 @@ export function AudioMicrodoseExperience({
   const [duration, setDuration] = useState(
     microdose.media.durationSeconds ?? 0,
   );
+  const speakerIds = useMemo(
+    () => new Set(microdose.speakers.map((speaker) => speaker.id)),
+    [microdose.speakers],
+  );
+  const mentionedPeople = useMemo(
+    () => microdose.subjects.filter((subject) => !speakerIds.has(subject.id)),
+    [microdose.subjects, speakerIds],
+  );
 
   const activeSegmentIndex = useMemo(
     () =>
@@ -260,21 +268,45 @@ export function AudioMicrodoseExperience({
         </div>
       </aside>
 
-      {microdose.subjects.length > 0 ? (
+      {microdose.speakers.length > 0 ? (
         <section className="lg:col-span-2">
           <h2 className="font-serif text-5xl font-black leading-none">
-            Subjects
+            Speakers
           </h2>
           <div className="mt-8 grid gap-6 md:grid-cols-2">
-            {microdose.subjects.map((subject) => (
+            {microdose.speakers.map((speaker) => (
               <article
-                key={subject.name}
+                key={speaker.id}
                 className="border-[6px] border-foreground bg-microdose-detail-surface p-5"
               >
                 <h3 className="font-serif text-3xl font-black leading-tight">
-                  {subject.name}
+                  {speaker.name}
                 </h3>
-                <p className="mt-4 text-lg leading-relaxed">{subject.bio}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {mentionedPeople.length > 0 ? (
+        <section className="lg:col-span-2">
+          <h2 className="font-serif text-4xl font-black leading-none">
+            Mentioned in this clip
+          </h2>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {mentionedPeople.map((person) => (
+              <article
+                key={person.id}
+                className="max-w-xl border-2 border-foreground bg-microdose-detail-chip px-4 py-3"
+              >
+                <h3 className="font-bold uppercase tracking-[0.08em]">
+                  {person.name}
+                </h3>
+                {person.bio ? (
+                  <div className="mt-2 text-sm leading-relaxed">
+                    <MarkdownText value={person.bio} />
+                  </div>
+                ) : null}
               </article>
             ))}
           </div>

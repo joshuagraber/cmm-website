@@ -40,6 +40,40 @@ const supportedIcons = [
   "waves",
   "zap",
 ];
+const tabColorPairs = [
+  {
+    surface: "var(--acid-tab-surface-a)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-b)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-c)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-d)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-e)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-f)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-g)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-h)",
+    icon: "var(--acid-tab-ink)",
+  },
+];
 
 try {
   const id = await promptRequired("id", "Microdose id");
@@ -79,16 +113,7 @@ try {
       type: "audio",
       src: await promptRequired("audio", "Audio path under public"),
     },
-    tabColorPairs: [
-      {
-        surface: "var(--acid-tab-surface-a)",
-        icon: "var(--brand-accent-cool)",
-      },
-      {
-        surface: "var(--acid-tab-surface-b)",
-        icon: "var(--brand-accent-warm)",
-      },
-    ],
+    tabColorPairs,
     subjectIds: optionalList("subject-ids"),
     transcript: [],
   };

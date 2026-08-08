@@ -31,3 +31,38 @@ export const microdoseIconNames = [
 ] as const;
 
 export type MicrodoseIcon = (typeof microdoseIconNames)[number];
+
+export const microdoseTabColorPairs = [
+  {
+    surface: "var(--acid-tab-surface-a)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-b)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-c)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-d)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-e)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-f)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-g)",
+    icon: "var(--acid-tab-ink)",
+  },
+  {
+    surface: "var(--acid-tab-surface-h)",
+    icon: "var(--acid-tab-ink)",
+  },
+] as const;

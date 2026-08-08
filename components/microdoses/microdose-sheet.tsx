@@ -45,6 +45,20 @@ function shuffleMicrodoses(microdoses: MicrodoseSheetItem[]) {
   );
 }
 
+function pickTabColorPair(microdose: MicrodoseSheetItem, index: number) {
+  if (microdose.tabColorPair) {
+    return microdose.tabColorPair;
+  }
+
+  const pairs = microdose.tabColorPairs;
+
+  if (pairs.length === 0) {
+    return fallbackTabColorPair;
+  }
+
+  return pairs[Math.abs(hashId(`${microdose.sheetId ?? microdose.id}:${index}`)) % pairs.length];
+}
+
 function readExperiencedIds() {
   try {
     const storedValue = window.localStorage.getItem(experiencedStorageKey);
@@ -118,15 +132,12 @@ export function MicrodoseSheet({ microdoses, activeTag }: MicrodoseSheetProps) {
       <div
         className="grid gap-2 border-[6px] border-acid-tab-ink bg-microdose-sheet p-[12px]"
         style={{
-          gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(min(9rem, 100%), 1fr))",
         }}
       >
         {visibleItems.map((microdose, index) => {
           const experienced = experiencedIds.has(microdose.id);
-          const tabColorPair =
-            microdose.tabColorPair ??
-            microdose.tabColorPairs[index % microdose.tabColorPairs.length] ??
-            fallbackTabColorPair;
+          const tabColorPair = pickTabColorPair(microdose, index);
           const tabStyle = {
             "--acid-tab-surface": tabColorPair.surface,
           } as CSSProperties;
@@ -137,17 +148,17 @@ export function MicrodoseSheet({ microdoses, activeTag }: MicrodoseSheetProps) {
               key={microdose.sheetId ?? microdose.id}
               style={tabStyle}
               className={cn(
-                "group relative min-h-[112px] overflow-hidden p-2 text-foreground outline-none transition-colors [background:radial-gradient(circle_at_12px_0,var(--acid-tab-surface)_0_4px,var(--acid-tab-ink)_4.5px_6px,transparent_6.5px)_0_0/24px_12px_repeat-x,radial-gradient(circle_at_12px_100%,var(--acid-tab-surface)_0_4px,var(--acid-tab-ink)_4.5px_6px,transparent_6.5px)_0_100%/24px_12px_repeat-x,radial-gradient(circle_at_0_12px,var(--acid-tab-surface)_0_4px,var(--acid-tab-ink)_4.5px_6px,transparent_6.5px)_0_0/12px_24px_repeat-y,radial-gradient(circle_at_100%_12px,var(--acid-tab-surface)_0_4px,var(--acid-tab-ink)_4.5px_6px,transparent_6.5px)_100%_0/12px_24px_repeat-y,var(--acid-tab-surface)] focus-visible:z-10 focus-visible:ring-4 focus-visible:ring-cmm-coral",
+                "group relative aspect-square overflow-hidden p-2 text-foreground outline-none transition-colors [background:radial-gradient(circle_at_12px_0,var(--acid-tab-surface)_0_4px,var(--acid-tab-ink)_4.5px_6px,transparent_6.5px)_0_0/24px_12px_repeat-x,radial-gradient(circle_at_12px_100%,var(--acid-tab-surface)_0_4px,var(--acid-tab-ink)_4.5px_6px,transparent_6.5px)_0_100%/24px_12px_repeat-x,radial-gradient(circle_at_0_12px,var(--acid-tab-surface)_0_4px,var(--acid-tab-ink)_4.5px_6px,transparent_6.5px)_0_0/12px_24px_repeat-y,radial-gradient(circle_at_100%_12px,var(--acid-tab-surface)_0_4px,var(--acid-tab-ink)_4.5px_6px,transparent_6.5px)_100%_0/12px_24px_repeat-y,var(--acid-tab-surface)] focus-visible:z-10 focus-visible:ring-4 focus-visible:ring-cmm-coral",
               )}
             >
-              <span className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-40 transition-transform duration-300 group-hover:scale-105 group-hover:opacity-55">
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-35 transition-transform duration-300 group-hover:scale-105 group-hover:opacity-50">
                 <MicrodoseIconMark
                   icon={microdose.icon}
                   color={tabColorPair.icon}
-                  className="size-16 md:size-20"
+                  className="size-14 md:size-16"
                 />
               </span>
-              <span className="relative z-10 flex h-full min-h-[96px] flex-col justify-between">
+              <span className="relative z-10 flex h-full flex-col justify-between">
                 {experienced ? (
                   <span className="ml-auto w-fit max-w-full border border-current bg-transparent px-1.5 py-1 text-[0.5rem] font-black uppercase leading-none tracking-[0.12em] opacity-80">
                     Seen

@@ -98,10 +98,14 @@
   --brand-accent-organic: var(--cmm-color-green-500);
 
   --acid-tab-ink: var(--cmm-color-ink-900);
-  --acid-tab-surface-a: color-mix(in srgb, var(--brand-field) 72%, var(--brand-accent-warm) 28%);
-  --acid-tab-surface-b: color-mix(in srgb, var(--brand-field) 62%, var(--brand-accent-organic) 38%);
-  --acid-tab-surface-c: color-mix(in srgb, var(--brand-paper) 55%, var(--brand-accent-cool) 45%);
-  --acid-tab-surface-d: color-mix(in srgb, var(--brand-field) 68%, var(--brand-ink-muted) 32%);
+  --acid-tab-surface-a: #ffb23f;
+  --acid-tab-surface-b: #c6d43b;
+  --acid-tab-surface-c: #69cbe8;
+  --acid-tab-surface-d: #ff7f6f;
+  --acid-tab-surface-e: #f466b8;
+  --acid-tab-surface-f: #7ed957;
+  --acid-tab-surface-g: #8f7ad8;
+  --acid-tab-surface-h: #f6e85c;
   --acid-tab-title-surface: color-mix(in srgb, var(--acid-tab-surface) 72%, transparent);
   --microdose-sheet-bg: var(--cmm-color-yellow-350);
   --microdose-detail-surface: var(--cmm-color-yellow-350);
@@ -182,10 +186,14 @@
     --brand-accent-organic: var(--cmm-color-green-300);
 
     --acid-tab-ink: var(--cmm-color-yellow-200);
-    --acid-tab-surface-a: color-mix(in srgb, var(--background) 68%, var(--brand-accent-warm) 32%);
-    --acid-tab-surface-b: color-mix(in srgb, var(--background) 62%, var(--brand-accent-organic) 38%);
-    --acid-tab-surface-c: color-mix(in srgb, var(--background) 58%, var(--brand-accent-cool) 42%);
-    --acid-tab-surface-d: color-mix(in srgb, var(--background) 78%, var(--brand-field) 22%);
+    --acid-tab-surface-a: #9c3f26;
+    --acid-tab-surface-b: #57702b;
+    --acid-tab-surface-c: #1d6c8f;
+    --acid-tab-surface-d: #a84e62;
+    --acid-tab-surface-e: #9c4184;
+    --acid-tab-surface-f: #447a5b;
+    --acid-tab-surface-g: #5d539f;
+    --acid-tab-surface-h: #8a7424;
     --acid-tab-title-surface: color-mix(in srgb, var(--acid-tab-surface) 72%, transparent);
     --microdose-sheet-bg: var(--cmm-color-olive-950);
     --microdose-detail-surface: var(--cmm-color-olive-950);
