@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 const enabled = process.env.ENABLE_VERCEL_TRANSCRIPTION === "true";
-const assetDir = path.join(root, ".vercel-transcription");
+const assetDir = path.join(root, "vercel-transcription");
 const binDir = path.join(assetDir, "bin");
 const modelDir = path.join(assetDir, "models");
 const archivePath = path.join(assetDir, "whisper-cli-archive");

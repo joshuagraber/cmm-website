@@ -9,14 +9,14 @@ import { downloadAudioObject } from "@/lib/storage";
 export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[]> {
   const whisperBin =
     envValue(process.env.WHISPER_CPP_BIN) ??
-    ".vercel-transcription/bin/whisper-cli";
+    "vercel-transcription/bin/whisper-cli";
   const whisperModel =
     envValue(process.env.WHISPER_CPP_MODEL) ??
-    ".vercel-transcription/models/ggml-tiny.en.bin";
+    "vercel-transcription/models/ggml-tiny.en.bin";
   const ffmpegBin =
     envValue(process.env.FFMPEG_BIN) ??
     (process.env.ENABLE_VERCEL_TRANSCRIPTION === "true"
-      ? ".vercel-transcription/bin/ffmpeg"
+      ? "vercel-transcription/bin/ffmpeg"
       : undefined) ??
     envValue(ffmpegStatic ?? undefined) ??
     "ffmpeg";
@@ -70,7 +70,16 @@ export async function transcribeS3Audio(key: string): Promise<TranscriptSegment[
 }
 
 function envValue(value: string | undefined) {
-  return value?.trim() || undefined;
+  const trimmedValue = value?.trim();
+
+  if (!trimmedValue) {
+    return undefined;
+  }
+
+  return trimmedValue.replace(
+    /^\.vercel-transcription(?=\/|\\)/,
+    "vercel-transcription",
+  );
 }
 
 function resolveRuntimePath(value: string) {

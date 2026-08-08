@@ -146,8 +146,8 @@ For production transcription on Vercel, set:
 
 ```bash
 ENABLE_VERCEL_TRANSCRIPTION=true
-WHISPER_CPP_BIN=.vercel-transcription/bin/whisper-cli
-WHISPER_CPP_MODEL=.vercel-transcription/models/ggml-tiny.en.bin
+WHISPER_CPP_BIN=vercel-transcription/bin/whisper-cli
+WHISPER_CPP_MODEL=vercel-transcription/models/ggml-tiny.en.bin
 FFMPEG_BIN=
 TRANSCRIPTION_QUEUE_MODE=
 ```

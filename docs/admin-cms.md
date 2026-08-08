@@ -44,8 +44,8 @@ Vercel handles queue authentication with OIDC in deployed environments.
 When `WHISPER_CPP_BIN` and `WHISPER_CPP_MODEL` are blank, the worker defaults to
 the bundled Vercel asset paths:
 
-- `.vercel-transcription/bin/whisper-cli`
-- `.vercel-transcription/models/ggml-tiny.en.bin`
+- `vercel-transcription/bin/whisper-cli`
+- `vercel-transcription/models/ggml-tiny.en.bin`
 
 ## Setup
 
