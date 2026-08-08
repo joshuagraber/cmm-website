@@ -445,8 +445,6 @@ export function MicrodoseEditor({
 
       if (result.slug && result.slug !== currentSlug) {
         router.replace(`/admin/microdoses/${result.slug}`);
-      } else {
-        router.refresh();
       }
 
       if (dirty) {
@@ -741,7 +739,7 @@ export function MicrodoseEditor({
         <div className="grid gap-3">
           {segments.map((segment, index) => (
             <div
-              key={`${index}-${segment.start}-${segment.end}`}
+              key={index}
               className="grid gap-3 border-2 border-foreground p-3 lg:grid-cols-[6rem_6rem_12rem_1fr_auto]"
             >
               <Input
