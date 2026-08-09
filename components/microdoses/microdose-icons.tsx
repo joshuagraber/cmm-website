@@ -1,34 +1,33 @@
+import { FaBoltLightning, FaPodcast, FaRadio } from "react-icons/fa6";
 import {
-  Archive,
-  Atom,
-  AudioLines,
-  AudioWaveform,
-  Beaker,
-  BookOpen,
-  BrainCircuit,
-  CassetteTape,
-  CircleDot,
-  FileText,
-  Dna,
-  Eye,
-  FlaskConical,
-  Headphones,
-  Library,
-  Mic,
-  NotebookText,
-  Orbit,
-  Pill,
-  Podcast,
-  Quote,
-  Radio,
-  ScrollText,
-  SquareAsterisk,
-  Telescope,
-  TestTube,
-  Waves,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+  GiAerialSignal,
+  GiArchiveResearch,
+  GiBrain,
+  GiBubblingFlask,
+  GiDna2,
+  GiFizzingFlask,
+  GiMolecule,
+  GiOctopus,
+  GiOldMicrophone,
+  GiOpenBook,
+  GiScrollQuill,
+  GiSoundWaves,
+  GiSparkles,
+  GiTestTubes,
+} from "react-icons/gi";
+import {
+  PiAtom,
+  PiCassetteTape,
+  PiEye,
+  PiFlowerLotus,
+  PiGhost,
+  PiHeadphones,
+  PiPill,
+  PiQuotes,
+  PiWaveform,
+} from "react-icons/pi";
+import { TbLibrary, TbNotebook, TbTelescope } from "react-icons/tb";
+import type { IconType } from "react-icons";
 import type { MicrodoseIcon } from "@/lib/microdoses";
 import { cn } from "@/lib/utils";
 
@@ -38,36 +37,36 @@ type MicrodoseIconMarkProps = {
   color?: string;
 };
 
-const iconComponents: Record<MicrodoseIcon, LucideIcon> = {
-  archive: Archive,
-  atom: Atom,
-  "audio-lines": AudioLines,
-  beaker: Beaker,
-  "book-open": BookOpen,
-  brain: BrainCircuit,
-  cassette: CassetteTape,
-  dna: Dna,
-  eye: Eye,
-  flask: FlaskConical,
-  flower: SquareAsterisk,
-  ghost: FileText,
-  headphones: Headphones,
-  library: Library,
-  mic: Mic,
-  molecule: Orbit,
-  notebook: NotebookText,
-  octopus: CircleDot,
-  pill: Pill,
-  podcast: Podcast,
-  quote: Quote,
-  radio: Radio,
-  scroll: ScrollText,
-  signal: AudioWaveform,
-  sparkles: SquareAsterisk,
-  telescope: Telescope,
-  "test-tube": TestTube,
-  waves: Waves,
-  zap: Zap,
+const iconComponents: Record<MicrodoseIcon, IconType> = {
+  archive: GiArchiveResearch,
+  atom: PiAtom,
+  "audio-lines": PiWaveform,
+  beaker: GiBubblingFlask,
+  "book-open": GiOpenBook,
+  brain: GiBrain,
+  cassette: PiCassetteTape,
+  dna: GiDna2,
+  eye: PiEye,
+  flask: GiFizzingFlask,
+  flower: PiFlowerLotus,
+  ghost: PiGhost,
+  headphones: PiHeadphones,
+  library: TbLibrary,
+  mic: GiOldMicrophone,
+  molecule: GiMolecule,
+  notebook: TbNotebook,
+  octopus: GiOctopus,
+  pill: PiPill,
+  podcast: FaPodcast,
+  quote: PiQuotes,
+  radio: FaRadio,
+  scroll: GiScrollQuill,
+  signal: GiAerialSignal,
+  sparkles: GiSparkles,
+  telescope: TbTelescope,
+  "test-tube": GiTestTubes,
+  waves: GiSoundWaves,
+  zap: FaBoltLightning,
 };
 
 const iconClasses: Record<MicrodoseIcon, string> = {
@@ -112,9 +111,8 @@ export function MicrodoseIconMark({
   return (
     <Icon
       aria-hidden="true"
-      strokeWidth={1.8}
       style={color ? { color } : undefined}
-      className={cn(iconClasses[icon], className)}
+      className={cn("shrink-0", iconClasses[icon], className)}
     />
   );
 }
