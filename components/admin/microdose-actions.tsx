@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 type MicrodoseActionsProps = {
+  formId: string;
   isPublished: boolean;
   hasStagedChanges: boolean;
   publishAction: (formData: FormData) => void | Promise<void>;
@@ -14,6 +15,7 @@ type MicrodoseActionsProps = {
 };
 
 export function MicrodoseActions({
+  formId,
   isPublished,
   hasStagedChanges,
   publishAction,
@@ -94,6 +96,18 @@ export function MicrodoseActions({
         </p>
       ) : null}
       <div className="flex flex-wrap gap-3">
+        <Button
+          type="button"
+          onClick={() =>
+            window.dispatchEvent(
+              new CustomEvent("cmm:microdose-editor-preview", {
+                detail: { formId },
+              }),
+            )
+          }
+        >
+          Preview microdose
+        </Button>
         <form action={publishAction}>
           <Button
             type="submit"

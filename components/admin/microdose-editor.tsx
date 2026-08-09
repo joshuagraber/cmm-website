@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Plus, Scissors, Trash2, Upload } from "lucide-react";
+import { Plus, Scissors, Trash2, Upload, X } from "lucide-react";
 import {
   type Dispatch,
   type SetStateAction,
@@ -12,22 +12,27 @@ import {
   useState,
 } from "react";
 import { TranscribeButton } from "@/components/admin/transcribe-button";
+import { MarkdownText } from "@/components/cmm/markdown-text";
+import { AudioMicrodoseExperience } from "@/components/microdoses/audio-microdose-experience";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { parseTags, serializeTags } from "@/lib/admin/forms";
 import {
+  microdoseTabColorPairs,
   microdoseIconNames,
   type MicrodoseIcon,
 } from "@/lib/microdose-constants";
 import {
+  type Microdose,
   type TranscriptSegment,
 } from "@/lib/microdoses";
 
 type PersonOption = {
   id: string;
   name: string;
+  bioMarkdown?: string;
 };
 
 type AudioAssetOption = {
@@ -84,10 +89,13 @@ export function MicrodoseEditor({
   const router = useRouter();
   const pathname = usePathname();
   const formRef = useRef<HTMLFormElement | null>(null);
+  const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const openPreviewRef = useRef<() => void>(() => {});
   const savedFormSnapshotRef = useRef("");
   const dirtyFrameRef = useRef<number | null>(null);
   const autosaveTimerRef = useRef<number | null>(null);
+  const previewStopTimerRef = useRef<number | null>(null);
   const autosaveInFlightRef = useRef(false);
   const autosaveSlugRef = useRef(autosaveSlug);
   const beforeUnloadStateRef = useRef({
@@ -102,11 +110,16 @@ export function MicrodoseEditor({
   >([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [titleValue, setTitleValue] = useState(value.title);
+  const [slugValue, setSlugValue] = useState(value.slug);
   const [selectedTags, setSelectedTags] = useState(value.tags);
   const [newTagInput, setNewTagInput] = useState("");
   const [selectedSpeakerIds, setSelectedSpeakerIds] = useState(value.speakerIds);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState(value.subjectIds);
   const [segments, setSegments] = useState(value.transcript);
+  const [playingPreviewId, setPlayingPreviewId] = useState("");
+  const [previewMicrodose, setPreviewMicrodose] = useState<Microdose | null>(null);
+  const lastGeneratedSlugRef = useRef(kebabCaseTitle(value.title));
   const tagOptions = useMemo(() => {
     const seen = new Set<string>();
 
@@ -125,6 +138,10 @@ export function MicrodoseEditor({
   const transcriptJson = useMemo(() => JSON.stringify(segments), [segments]);
   const onlySelectedSpeakerId =
     selectedSpeakerIds.length === 1 ? selectedSpeakerIds[0] : undefined;
+  const transcriptSpeakerOptions = useMemo(
+    () => people.filter((person) => selectedSpeakerIds.includes(person.id)),
+    [people, selectedSpeakerIds],
+  );
   const availableAudioAssets = useMemo(() => {
     const serverIds = new Set(audioAssets.map((asset) => asset.id));
 
@@ -137,6 +154,10 @@ export function MicrodoseEditor({
   useEffect(() => {
     autosaveSlugRef.current = autosaveSlug;
   }, [autosaveSlug]);
+
+  useEffect(() => {
+    openPreviewRef.current = openPreview;
+  });
 
   useEffect(() => {
     savedFormSnapshotRef.current = getFormSnapshot(formRef.current);
@@ -156,7 +177,11 @@ export function MicrodoseEditor({
     }
 
     try {
-      restoreDraft(JSON.parse(storedDraft), formRef.current, {
+      const parsedDraft = JSON.parse(storedDraft);
+
+      restoreDraft(parsedDraft, formRef.current, {
+        setTitleValue,
+        setSlugValue,
         setAudioAssetId,
         setSelectedTags,
         setSelectedSpeakerIds,
@@ -164,6 +189,10 @@ export function MicrodoseEditor({
         setSegments,
         setNewTagInput,
       });
+      lastGeneratedSlugRef.current =
+        typeof parsedDraft?.title === "string"
+          ? kebabCaseTitle(parsedDraft.title)
+          : "";
       window.setTimeout(() => {
         savedFormSnapshotRef.current = getFormSnapshot(formRef.current);
         scheduleDirtyCheck();
@@ -225,8 +254,30 @@ export function MicrodoseEditor({
       if (autosaveTimerRef.current !== null) {
         window.clearTimeout(autosaveTimerRef.current);
       }
+
+      stopBoundaryPreview();
     };
   }, []);
+
+  useEffect(() => {
+    function handlePreviewEvent(event: Event) {
+      if (
+        event instanceof CustomEvent &&
+        event.detail?.formId === formId
+      ) {
+        openPreviewRef.current();
+      }
+    }
+
+    window.addEventListener("cmm:microdose-editor-preview", handlePreviewEvent);
+
+    return () => {
+      window.removeEventListener(
+        "cmm:microdose-editor-preview",
+        handlePreviewEvent,
+      );
+    };
+  }, [formId]);
 
   async function uploadAudio() {
     const file = fileInputRef.current?.files?.[0];
@@ -298,11 +349,17 @@ export function MicrodoseEditor({
   }
 
   function updateSegment(index: number, patch: Partial<TranscriptSegment>) {
-    setSegments((current) =>
-      current.map((segment, segmentIndex) =>
+    setSegments((current) => {
+      const next = current.map((segment, segmentIndex) =>
         segmentIndex === index ? { ...segment, ...patch } : segment,
-      ),
-    );
+      );
+
+      if (typeof patch.end === "number" && next[index + 1]) {
+        next[index + 1] = { ...next[index + 1], start: patch.end };
+      }
+
+      return next;
+    });
   }
 
   function addSegment() {
@@ -337,6 +394,68 @@ export function MicrodoseEditor({
 
   function deleteSegment(index: number) {
     setSegments((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  function updateTitle(value: string) {
+    const previousGeneratedSlug = lastGeneratedSlugRef.current;
+    const nextGeneratedSlug = kebabCaseTitle(value);
+
+    setTitleValue(value);
+    setSlugValue((current) =>
+      current.trim() === "" || current === previousGeneratedSlug
+        ? nextGeneratedSlug
+        : current,
+    );
+    lastGeneratedSlugRef.current = nextGeneratedSlug;
+  }
+
+  function toggleBoundaryPreview({
+    id,
+    start,
+    end,
+  }: {
+    id: string;
+    start: number;
+    end: number;
+  }) {
+    const audio = audioPreviewRef.current;
+
+    if (!audio || !audioSrc) {
+      return;
+    }
+
+    if (playingPreviewId === id && !audio.paused) {
+      stopBoundaryPreview();
+      return;
+    }
+
+    stopBoundaryPreview();
+
+    const safeStart = Math.max(0, start);
+    const safeEnd = Math.max(safeStart + 0.25, end);
+    audio.currentTime = safeStart;
+    setPlayingPreviewId(id);
+
+    void audio.play().catch(() => {
+      setPlayingPreviewId("");
+    });
+
+    previewStopTimerRef.current = window.setTimeout(
+      stopBoundaryPreview,
+      Math.max(250, (safeEnd - safeStart) * 1000),
+    );
+  }
+
+  function stopBoundaryPreview() {
+    const audio = audioPreviewRef.current;
+
+    if (previewStopTimerRef.current !== null) {
+      window.clearTimeout(previewStopTimerRef.current);
+      previewStopTimerRef.current = null;
+    }
+
+    audio?.pause();
+    setPlayingPreviewId("");
   }
 
   function scheduleDirtyCheck() {
@@ -508,6 +627,24 @@ export function MicrodoseEditor({
     );
   }
 
+  function toggleSelectedSpeakerId(id: string) {
+    const selected = selectedSpeakerIds.includes(id);
+
+    setSelectedSpeakerIds((current) =>
+      selected
+        ? current.filter((currentId) => currentId !== id)
+        : [...current, id],
+    );
+
+    if (selected) {
+      setSegments((current) =>
+        current.map((segment) =>
+          segment.speakerId === id ? { ...segment, speakerId: undefined } : segment,
+        ),
+      );
+    }
+  }
+
   async function saveBeforeTranscribe() {
     await autosaveDraft({ force: true, throwOnError: true });
   }
@@ -524,6 +661,52 @@ export function MicrodoseEditor({
     if (draftStorageKey) {
       window.sessionStorage.removeItem(draftStorageKey);
     }
+  }
+
+  function openPreview() {
+    const form = formRef.current;
+
+    if (!form) {
+      return;
+    }
+
+    const payload = formDataToPayload(new FormData(form));
+    const personMap = new Map(people.map((person) => [person.id, person]));
+    const speakerMap = new Map(
+      selectedSpeakerIds
+        .map((speakerId) => personMap.get(speakerId))
+        .filter((person): person is PersonOption => Boolean(person))
+        .map((person) => [person.id, { id: person.id, name: person.name }]),
+    );
+
+    setPreviewMicrodose({
+      id: payload.slug || "draft-preview",
+      title: payload.title || "Untitled microdose",
+      description: payload.description,
+      speakerLabel: payload.speakerLabel || "Draft",
+      icon: payload.icon as MicrodoseIcon,
+      tags: selectedTags,
+      tabColorPairs: [...microdoseTabColorPairs],
+      media: {
+        type: "audio",
+        src: audioSrc,
+      },
+      speakers: Array.from(speakerMap.values()),
+      subjects: selectedSubjectIds
+        .map((subjectId) => personMap.get(subjectId))
+        .filter((person): person is PersonOption => Boolean(person))
+        .map((person) => ({
+          id: person.id,
+          name: person.name,
+          bio: person.bioMarkdown ?? "",
+        })),
+      transcript: segments.map((segment) => ({
+        ...segment,
+        speaker: segment.speakerId
+          ? speakerMap.get(segment.speakerId)
+          : undefined,
+      })),
+    });
   }
 
   return (
@@ -544,12 +727,24 @@ export function MicrodoseEditor({
         <h2 className="font-serif text-4xl font-black">Record</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="slug">Slug</Label>
-            <Input id="slug" name="slug" defaultValue={value.slug} required />
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              name="title"
+              value={titleValue}
+              onChange={(event) => updateTitle(event.target.value)}
+              required
+            />
           </div>
           <div>
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" defaultValue={value.title} required />
+            <Label htmlFor="slug">Slug</Label>
+            <Input
+              id="slug"
+              name="slug"
+              value={slugValue}
+              onChange={(event) => setSlugValue(kebabCaseTitle(event.target.value))}
+              required
+            />
           </div>
           <div>
             <Label htmlFor="speakerLabel">Speaker label</Label>
@@ -663,7 +858,16 @@ export function MicrodoseEditor({
 
       <section className="grid gap-5 border-[6px] border-foreground p-5">
         <h2 className="font-serif text-4xl font-black">Audio</h2>
-        {audioSrc ? <audio controls src={audioSrc} className="w-full" /> : null}
+        {audioSrc ? (
+          <audio
+            ref={audioPreviewRef}
+            controls
+            src={audioSrc}
+            className="w-full"
+            onEnded={() => setPlayingPreviewId("")}
+            onPause={() => setPlayingPreviewId("")}
+          />
+        ) : null}
         <div className="grid gap-4 md:grid-cols-[1fr_auto]">
           <div>
             <Label htmlFor="audioAsset">Uploaded asset</Label>
@@ -709,7 +913,7 @@ export function MicrodoseEditor({
             title="Featured speakers"
             options={people}
             selectedIds={selectedSpeakerIds}
-            onToggle={(id) => toggleSelectedId(id, setSelectedSpeakerIds)}
+            onToggle={toggleSelectedSpeakerId}
           />
           <CheckboxGroup
             name="subjectIds"
@@ -740,7 +944,7 @@ export function MicrodoseEditor({
           {segments.map((segment, index) => (
             <div
               key={index}
-              className="grid gap-3 border-2 border-foreground p-3 lg:grid-cols-[6rem_6rem_12rem_1fr_auto]"
+              className="grid gap-3 border-2 border-foreground p-3 lg:grid-cols-[6rem_6rem_3rem_12rem_1fr_auto]"
             >
               <Input
                 aria-label="Start seconds"
@@ -762,6 +966,18 @@ export function MicrodoseEditor({
                   updateSegment(index, { end: Number(event.target.value) })
                 }
               />
+              <BoundaryPreviewButton
+                label="Preview chunk"
+                disabled={!audioSrc}
+                playing={playingPreviewId === `${index}:chunk`}
+                onClick={() =>
+                  toggleBoundaryPreview({
+                    id: `${index}:chunk`,
+                    start: segment.start,
+                    end: segment.end,
+                  })
+                }
+              />
               <select
                 aria-label="Speaker"
                 value={segment.speakerId ?? ""}
@@ -773,7 +989,7 @@ export function MicrodoseEditor({
                 className="h-12 border-2 border-input bg-background px-3 py-2"
               >
                 <option value="">No speaker</option>
-                {people.map((person) => (
+                {transcriptSpeakerOptions.map((person) => (
                   <option key={person.id} value={person.id}>
                     {person.name}
                   </option>
@@ -816,6 +1032,13 @@ export function MicrodoseEditor({
           {submitLabel}
         </Button>
       )}
+
+      {previewMicrodose ? (
+        <MicrodosePreviewModal
+          microdose={previewMicrodose}
+          onClose={() => setPreviewMicrodose(null)}
+        />
+      ) : null}
     </form>
   );
 }
@@ -942,6 +1165,8 @@ function restoreDraft(
   payload: unknown,
   form: HTMLFormElement | null,
   setters: {
+    setTitleValue: Dispatch<SetStateAction<string>>;
+    setSlugValue: Dispatch<SetStateAction<string>>;
     setAudioAssetId: Dispatch<SetStateAction<string>>;
     setSelectedTags: Dispatch<SetStateAction<TagOption[]>>;
     setSelectedSpeakerIds: Dispatch<SetStateAction<string[]>>;
@@ -955,8 +1180,8 @@ function restoreDraft(
   }
 
   const draft = payload as Record<string, unknown>;
-  setInputValue(form, "slug", draft.slug);
-  setInputValue(form, "title", draft.title);
+  setters.setSlugValue(typeof draft.slug === "string" ? draft.slug : "");
+  setters.setTitleValue(typeof draft.title === "string" ? draft.title : "");
   setInputValue(form, "description", draft.description);
   setInputValue(form, "speakerLabel", draft.speakerLabel);
   setInputValue(form, "icon", draft.icon);
@@ -1001,6 +1226,116 @@ function stringArrayValue(value: unknown) {
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === "string")
     : [];
+}
+
+function kebabCaseTitle(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function BoundaryPreviewButton({
+  label,
+  disabled,
+  playing,
+  onClick,
+}: {
+  label: string;
+  disabled: boolean;
+  playing: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      type="button"
+      size="sm"
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      onClick={onClick}
+      className="h-12 w-12 shrink-0 px-0"
+    >
+      {playing ? (
+        <span
+          aria-hidden="true"
+          className="grid h-4 w-4 grid-cols-2 gap-1"
+        >
+          <span className="h-4 w-1.5 bg-current" />
+          <span className="h-4 w-1.5 bg-current" />
+        </span>
+      ) : (
+        <span
+          aria-hidden="true"
+          className="ml-0.5 h-0 w-0 border-y-[9px] border-l-[14px] border-y-transparent border-l-current"
+        />
+      )}
+    </Button>
+  );
+}
+
+function MicrodosePreviewModal({
+  microdose,
+  onClose,
+}: {
+  microdose: Microdose;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Preview ${microdose.title}`}
+      className="fixed inset-0 z-50 overflow-y-auto bg-background text-foreground"
+    >
+      <div className="sticky top-0 z-10 border-b-[6px] border-foreground bg-cmm-yellow px-site-x py-4 text-black">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em]">
+              Draft preview
+            </p>
+            <h2 className="font-serif text-3xl font-black leading-none">
+              {microdose.title}
+            </h2>
+          </div>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={onClose}
+            className="gap-2"
+          >
+            <X aria-hidden="true" className="size-4" />
+            Close preview
+          </Button>
+        </div>
+      </div>
+
+      <section className="cmm-yellow-field px-site-x py-section-y">
+        <div className="mb-12 max-w-5xl">
+          <p className="mb-4 font-bold uppercase tracking-[0.16em]">
+            {microdose.speakerLabel}
+          </p>
+          <h1 className="font-serif text-6xl font-black leading-none md:text-8xl">
+            {microdose.title}
+          </h1>
+          <div className="mt-8 max-w-3xl text-2xl leading-snug">
+            <MarkdownText value={microdose.description || "Description pending."} />
+          </div>
+        </div>
+
+        {microdose.media.src ? (
+          <AudioMicrodoseExperience microdose={microdose} />
+        ) : (
+          <p className="border-[10px] border-foreground bg-microdose-detail-surface p-5 text-xl font-bold">
+            Select or upload audio to preview the player.
+          </p>
+        )}
+      </section>
+    </div>
+  );
 }
 
 function CheckboxGroup({

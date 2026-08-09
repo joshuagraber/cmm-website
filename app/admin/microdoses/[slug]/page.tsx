@@ -77,6 +77,7 @@ export default async function AdminMicrodosePage({
         </div>
         <MicrodoseActions
           key={`${savedStateKey}:${microdose.hasStagedChanges}`}
+          formId={formId}
           isPublished={microdose.isPublished}
           hasStagedChanges={microdose.hasStagedChanges}
           publishAction={publishAction}
